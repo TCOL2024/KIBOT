@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Idee einreichen</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Idee für Bot einreichen</h1>
+  </header>
+  <form action="/submit" method="post">
+    <label for="vorname">Vorname:</label>
+    <input type="text" id="vorname" name="vorname" required>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="email">E-Mail:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="bot">Bot-Auswahl:</label>
+    <select id="bot" name="bot" required>
+      <option value="Personalmanagement">Personalmanagement</option>
+      <option value="Ausbildung">Ausbildung</option>
+      <option value="Versicherung">Versicherung</option>
+      <option value="Sonstiges">Sonstiges</option>
+    </select>
+
+    <label for="idea">Beschreibung der Idee:</label>
+    <textarea id="idea" name="idea" rows="6" required></textarea>
+
+    <button type="submit">Senden</button>
+  </form>
+</body>
+</html>
