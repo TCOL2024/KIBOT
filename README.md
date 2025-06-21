@@ -1,8 +1,10 @@
 # Idea Submission Form
 
-This project provides a small Node.js application with a form to collect ideas for different bots. The form asks for first name, last name, email address, the target bot, and a detailed description of the idea.
+This project provides a small Node.js application with a form to collect ideas for different bots. The form uses a ServiceNow-like layout and gathers the user's first name, last name, email address, the target bot and a detailed description.
 
-Submitted ideas are sent to **ki-test@gmx.com** via email. SMTP settings must be supplied via environment variables.
+Submitted ideas are posted directly to the Make webhook (`https://hook.us2.make.com/gdk7iqfavitf7qqplb3cyiptk7bf3l4x`).
+Because the form posts to Make on its own, `index.html` can be hosted as a static page without running the Node server.
+If you want to revert to the original email submission, provide SMTP credentials via environment variables and update the form action to `/submit`.
 
 ## Setup
 
@@ -20,7 +22,7 @@ Submitted ideas are sent to **ki-test@gmx.com** via email. SMTP settings must be
 
 3. Start the application:
    ```bash
-   node server.js
+   npm start
    ```
 
 4. Open `http://localhost:3000` in your browser and fill out the form.
