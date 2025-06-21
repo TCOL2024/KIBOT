@@ -5,18 +5,26 @@
 <title>Idee einreichen</title>
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #f0f4f7;
   margin: 0;
   padding: 20px;
 }
 .container {
-  width: 500px;
+  width: 600px;
   margin: 40px auto;
   background: #fff;
-  padding: 20px;
+  padding: 20px 30px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+h1 {
+  background-color: #1a4480;
+  color: #fff;
+  padding: 12px 20px;
+  margin: -20px -30px 20px -30px;
+  border-radius: 4px 4px 0 0;
+  font-size: 20px;
 }
 label {
   display: block;
@@ -68,8 +76,23 @@ button:hover {
       <option value="Sonstiges">Sonstiges</option>
     </select><br>
 
-    <label for="idea">Beschreibung der Idee:</label><br>
-    <textarea id="idea" name="idea" rows="6" cols="50" required></textarea><br>
+    <label for="idea">Kurzbeschreibung der Idee:</label><br>
+    <textarea id="idea" name="idea" rows="4" required></textarea><br>
+
+    <label for="problem">Welches Problem soll der Bot lösen?</label><br>
+    <textarea id="problem" name="problem" rows="4" required></textarea><br>
+
+    <label for="target">Wer ist die Zielgruppe?</label><br>
+    <input type="text" id="target" name="target" required><br>
+
+    <label for="interaction">Wie soll die Interaktion ablaufen?</label><br>
+    <textarea id="interaction" name="interaction" rows="4"></textarea><br>
+
+    <label for="systems">Welche Systeme oder Datenquellen sind beteiligt?</label><br>
+    <textarea id="systems" name="systems" rows="3"></textarea><br>
+
+    <label for="notes">Weitere Hinweise oder Anforderungen:</label><br>
+    <textarea id="notes" name="notes" rows="3"></textarea><br>
 
     <button type="submit">Senden</button>
   </form>
