@@ -5,5 +5,7 @@
   "scripts": {
     "build": "echo 'Static site – kein Build nötig'"
   },
-  "dependencies": {}
+ "dependencies": {
+  // …,
++ "puppeteer": "^21.4.1"
 }
