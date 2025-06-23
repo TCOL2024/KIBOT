@@ -6,5 +6,10 @@
   # falls du Functions nutzt, lass hier nur das Verzeichnis stehen
   directory = "netlify/functions"
 
+[functions."webhook-proxy"]
+  # Erhöht das Timeout auf das Netlify-Maximum, damit
+  # längere Make-Szenarien nicht abbrechen
+  timeout = 26
+
 [build.environment]
   NODE_VERSION = "18"
