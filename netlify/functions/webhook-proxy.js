@@ -1,4 +1,5 @@
 // netlify/functions/webhook-proxy.js
+const fetch = require('node-fetch');
 exports.handler = async (event, context) => {
   console.log('–– EVENT BODY ––');
   console.log(event.body);
