@@ -22,13 +22,15 @@ exports.handler = async (event, context) => {
       body:    event.body,
     });
     console.log(`→ upstream status: ${resp.status} ${resp.statusText}`);
-    const text = await resp.text();
-    console.log('→ upstream body:', text);
 
     if (!resp.ok) {
+      const text = await resp.text();
+      console.error('→ upstream body:', text);
       return { statusCode: resp.status, body: `Forward error: ${resp.statusText}` };
     }
-    return { statusCode: 200, body: 'OK' };
+
+    const text = await resp.text();
+    return { statusCode: resp.status, body: text };
   } catch (err) {
     console.error('❌ fetch threw:', err);
     return { statusCode: 500, body: `Internal error: ${err}` };
