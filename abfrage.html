@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Idee einreichen</title>
+<style>
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #f0f4f7;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+h1 {
+  background-color: #1a4480;
+  color: #fff;
+  padding: 12px 20px;
+  margin: -20px -30px 20px -30px;
+  border-radius: 4px 4px 0 0;
+  font-size: 20px;
+}
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+button {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #0072C6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #005a9e;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Idee für Bot einreichen</h1>
+    <form action="https://hook.us2.make.com/5h08fyf8nuztv1b77lg5driw948ertr3" method="POST">
+    <label for="vorname">Vorname:</label><br>
+    <input type="text" id="vorname" name="vorname" required><br>
+
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name" required><br>
+
+    <label for="email">E-Mail:</label><br>
+    <input type="email" id="email" name="email" required><br>
+
+    <label for="bot">Bot-Auswahl:</label><br>
+    <select id="bot" name="bot" required>
+      <option value="Personalmanagement">Personalmanagement</option>
+      <option value="Ausbildung">Ausbildung</option>
+      <option value="Versicherung">Versicherung</option>
+      <option value="Sonstiges">Sonstiges</option>
+    </select><br>
+
+    <label for="idea">Kurzbeschreibung der Idee:</label><br>
+    <textarea id="idea" name="idea" rows="4" required></textarea><br>
+
+    <label for="problem">Welches Problem soll der Bot lösen?</label><br>
+    <textarea id="problem" name="problem" rows="4" required></textarea><br>
+
+    <label for="target">Wer ist die Zielgruppe?</label><br>
+    <input type="text" id="target" name="target" required><br>
+
+    <label for="interaction">Wie soll die Interaktion ablaufen?</label><br>
+    <textarea id="interaction" name="interaction" rows="4"></textarea><br>
+
+    <label for="systems">Welche Systeme oder Datenquellen sind beteiligt?</label><br>
+    <textarea id="systems" name="systems" rows="3"></textarea><br>
+
+    <label for="notes">Weitere Hinweise oder Anforderungen:</label><br>
+    <textarea id="notes" name="notes" rows="3"></textarea><br>
+
+    <button type="submit">Senden</button>
+  </form>
+  </div>
+</body>
+</html>
