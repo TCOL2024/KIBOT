@@ -1,0 +1,3 @@
+[functions]
+# Node-18 ist erforderlich, damit fetch + Blob nativ funktionieren
+node_version = "18"
