@@ -9,5 +9,6 @@
     "puppeteer": "^22.8.2",
     "express": "^4.19.2",
     "nodemailer": "^6.9.11"
+    "node-fetch": "^2.6.7"
   }
 }

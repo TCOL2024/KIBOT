@@ -5,3 +5,6 @@
 [functions]
   # falls du Functions nutzt, lass hier nur das Verzeichnis stehen
   directory = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
