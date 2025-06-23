@@ -1,8 +1,4 @@
-// webhook-proxy.js
-import fetch from 'node-fetch';
-
 export async function handler(event, context) {
-  // Nur POST-Anfragen erlauben
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
