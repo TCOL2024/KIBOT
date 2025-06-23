@@ -1,5 +1,7 @@
 [build]
-  functions = "netlify/functions"
-  publish   = "."
+  publish    = "."
+  functions  = "netlify/functions"
 
-# optional: wenn dein Frontend statisch im Root liegt
+[functions]
+  # dieser Bundler packt nur tatsächlich importierte Files in die Function
+  node_bundler = "esbuild"
