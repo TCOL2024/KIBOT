@@ -334,7 +334,7 @@
 
             updateActiveChat([...contextMsgs, {sender:'bot',text:'Einen Moment bitte ...'}]);
 
-            const webhookUrl = '/.netlify/functions/webhook-proxy';
+            const webhookUrl = 'https://hook.us2.make.com/crk4yctny91n557tnx34f7tjtx9ycudp';
             try {
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
