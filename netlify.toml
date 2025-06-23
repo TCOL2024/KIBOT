@@ -1,3 +1,5 @@
-[functions]
-# Node-18 ist erforderlich, damit fetch + Blob nativ funktionieren
-node_version = "18"
+[build]
+  functions = "netlify/functions"
+  publish   = "."
+
+# optional: wenn dein Frontend statisch im Root liegt
