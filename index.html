@@ -211,6 +211,7 @@
         function saveChats() { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); }
 
         function newChat() {
+            const chat = { id: makeId(), name: 'Neuer Chat', messages: [introMsg] };
             chats.unshift(chat);
             activeChatId = chat.id;
             saveChats();
