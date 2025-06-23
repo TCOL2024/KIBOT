@@ -8,7 +8,6 @@
     <meta name="theme-color" content="#2346e4">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="ChatBot">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -212,8 +211,6 @@
         function saveChats() { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); }
 
         function newChat() {
-            const name = 'Neuer Chat ' + (chats.length + 1);
-            const chat = { id: makeId(), name, created: new Date().toISOString(), messages: [introMsg] };
             chats.unshift(chat);
             activeChatId = chat.id;
             saveChats();
