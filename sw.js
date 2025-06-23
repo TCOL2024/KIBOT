@@ -1,6 +1,7 @@
-const CACHE_NAME = 'ki-chatbot-cache-v1';
+const CACHE_NAME = 'ki-chatbot-cache-v2';
 const APP_SHELL = [
   './assistant-ki-app-test.html',
+  './index.html',
   './manifest.json',
   './sw.js'
 ];
