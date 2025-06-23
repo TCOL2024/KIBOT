@@ -1,32 +1,26 @@
-// ── netlify/functions/webhook-proxy.js ──
-import fetch from "node-fetch";        // node-fetch v3 ist ESM!
-import { Blob }  from "buffer";        // nativ in Node 18
-
-// damit global.Blob existiert (für FormData & file.js)
-if (typeof global.Blob === "undefined") {
-  global.Blob = Blob;
-}
-
-export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers: { Allow: "POST" }, body: "Method Not Allowed" };
+// netlify/functions/webhook-proxy.js
+exports.handler = async function(event) {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: { Allow: 'POST' }, body: 'Method Not Allowed' };
   }
+
   const webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl) {
-    return { statusCode: 500, body: "Webhook URL not configured" };
+    return { statusCode: 500, body: 'WEBHOOK_URL not set' };
   }
-
-  const payload = event.body; // wir erwarten bereits JSON → einfach weiterleiten
 
   try {
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: payload
+    // <— benutze hier das eingebaute fetch
+    const resp = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: event.body
     });
-    const text = await res.text();
-    return { statusCode: res.status, body: text };
-  } catch (err) {
-    return { statusCode: 500, body: `Error: ${err.message}` };
+    if (!resp.ok) {
+      return { statusCode: resp.status, body: `Forward error: ${resp.statusText}` };
+    }
+    return { statusCode: 200, body: 'OK' };
+  } catch (e) {
+    return { statusCode: 500, body: e.toString() };
   }
-}
+};
