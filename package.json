@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "echo 'Static site – kein Build nötig'"
+    "build": "echo 'Static site – kein Build notwendig'"
   },
- "dependencies": {
-  // …,
-+ "puppeteer": "^21.4.1"
+  "dependencies": {
+    "puppeteer": "^21.4.1"
+  }
 }
