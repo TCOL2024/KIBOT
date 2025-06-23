@@ -8,4 +8,6 @@ serve .
 ```
 
 The conversation history is stored locally in the browser and sent to a
-Make.com webhook.
+webhook. In production you can deploy this on Netlify and set `WEBHOOK_URL`
+as an environment variable. Requests from the chatbot are then proxied via
+`/.netlify/functions/webhook-proxy`.
