@@ -192,6 +192,7 @@
         </div>
     </div>
     <script>
+        'use strict';
         document.getElementById('acceptPrivacy').onclick = function() {
             document.getElementById('privacy-modal').style.display = 'none';
             document.getElementById('disclaimer-modal').style.display = 'flex';
@@ -382,7 +383,8 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('privacy-modal').style.display = 'flex';
             if('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js');
+                navigator.serviceWorker.register('sw.js')
+                    .catch(e => console.error('SW registration failed', e));
             }
         });
     </script>
