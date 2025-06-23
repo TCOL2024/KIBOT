@@ -1,13 +1,6 @@
-# netlify.toml
-
 [build]
-  command = "npm run build"      # falls du einen Build-Step hast
-  publish = "dist"               # dein Ordner mit den static files
+command = "npm run build"
+publish = "dist"
 
 [functions]
-  # globaler Timeout für alle Functions (maximal 26 Sekunden)
-  timeout = 26
-
-# oder nur für die einzelne Funktion webhook-proxy.js:
-#[functions.webhook-proxy]
-#  timeout = 26
+timeout = 26
