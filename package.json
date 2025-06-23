@@ -6,6 +6,8 @@
     "build": "echo 'Static site – kein Build notwendig'"
   },
   "dependencies": {
-    "puppeteer": "^22.8.2"
+    "puppeteer": "^22.8.2",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.11"
   }
 }
