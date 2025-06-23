@@ -1,4 +1,7 @@
+import fetch from 'node-fetch';
+
 export async function handler(event, context) {
+  // HTTP-Methoden-Check aus dem „main“-Branch
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,

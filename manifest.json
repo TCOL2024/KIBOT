@@ -1,10 +1,10 @@
 {
   "name": "KI Assistant Chatbot",
   "short_name": "KIChatbot",
-  "start_url": "assistant-ki-app-test.html",
+  "start_url": "./assistant-ki-app-test.html",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#2346e4",
   "icons": [
-  ]
-}
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADAEAYAAAACTLBEAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfpBhcGIR1UBX/kAAAXLUlEQVR42u3d/X/Vdf3H8ccccDYcm2zJ3GgXYLCpackGxyjThlfVILlYgZAaMPQGlSUy5GIoxRgw8eKm0xaDrJt4VXjRWWGhQ6OMuUGFV5sQsI1dkVswJzsHGvv+kPtmhAXy+Xze55zP8/4HvN/P87
