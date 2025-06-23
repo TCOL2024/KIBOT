@@ -1,23 +1,16 @@
 // netlify/functions/webhook-proxy.js
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { Allow: 'POST' },
-      body: 'Method Not Allowed',
-    };
+    return { statusCode: 405, headers: { Allow: 'POST' }, body: 'Method Not Allowed' };
   }
 
   const webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl) {
-    return {
-      statusCode: 500,
-      body: 'WEBHOOK_URL not configured',
-    };
+    return { statusCode: 500, body: 'WEBHOOK_URL not configured' };
   }
 
   try {
-    // hier wird das native global.fetch verwendet
+    // nutzt das in Netlify/Node18+ eingebaute fetch
     const resp = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -25,17 +18,11 @@ exports.handler = async (event) => {
     });
 
     if (!resp.ok) {
-      return {
-        statusCode: resp.status,
-        body: `Forward error: ${resp.statusText}`,
-      };
+      return { statusCode: resp.status, body: `Forward error: ${resp.statusText}` };
     }
 
     return { statusCode: 200, body: 'OK' };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: `Internal error: ${err.toString()}`,
-    };
+    return { statusCode: 500, body: `Internal error: ${err}` };
   }
 };
