@@ -1,18 +1,14 @@
 {
   "name": "kibot",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "dev": "netlify dev",
     "test": "echo \"No tests\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "express": "^5.1.0",
-    "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.3"
+    "node-fetch": "^3.3.2"
   }
 }
