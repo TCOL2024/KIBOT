@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Leistungserfassung</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    form { margin-bottom: 20px; }
+    label { display: block; margin-top: 10px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h1>Leistungserfassung</h1>
+
+  <h2>Projekt anlegen</h2>
+  <form id="project-form">
+    <label for="project-name">Projektname:</label>
+    <input type="text" id="project-name" required>
+    <label for="project-desc">Beschreibung:</label>
+    <input type="text" id="project-desc">
+    <button type="submit">Projekt speichern</button>
+  </form>
+
+  <h2>Leistung verbuchen</h2>
+  <form id="service-form">
+    <label for="service-project">Projekt:</label>
+    <select id="service-project" required></select>
+    <label for="service-date">Datum:</label>
+    <input type="date" id="service-date" required>
+    <label for="service-hours">Stunden:</label>
+    <input type="number" id="service-hours" min="0" step="0.25" required>
+    <label for="service-desc">Beschreibung:</label>
+    <input type="text" id="service-desc">
+    <button type="submit">Leistung speichern</button>
+  </form>
+
+  <h2>Projekte</h2>
+  <table id="project-table">
+    <thead>
+      <tr><th>Name</th><th>Beschreibung</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Leistungen</h2>
+  <table id="service-table">
+    <thead>
+      <tr><th>Projekt</th><th>Datum</th><th>Stunden</th><th>Beschreibung</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+    const services = JSON.parse(localStorage.getItem('services') || '[]');
+
+    const projectForm = document.getElementById('project-form');
+    const serviceForm = document.getElementById('service-form');
+    const projectTableBody = document.querySelector('#project-table tbody');
+    const serviceTableBody = document.querySelector('#service-table tbody');
+    const serviceProjectSelect = document.getElementById('service-project');
+
+    function renderProjects() {
+      projectTableBody.innerHTML = '';
+      serviceProjectSelect.innerHTML = '<option value="" disabled selected>-- bitte wählen --</option>';
+      projects.forEach((p, idx) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${p.name}</td><td>${p.desc}</td>`;
+        projectTableBody.appendChild(row);
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = p.name;
+        serviceProjectSelect.appendChild(opt);
+      });
+    }
+
+    function renderServices() {
+      serviceTableBody.innerHTML = '';
+      services.forEach(s => {
+        const row = document.createElement('tr');
+        const proj = projects[s.projectIndex] ? projects[s.projectIndex].name : '';
+        row.innerHTML = `<td>${proj}</td><td>${s.date}</td><td>${s.hours}</td><td>${s.desc}</td>`;
+        serviceTableBody.appendChild(row);
+      });
+    }
+
+    projectForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('project-name').value.trim();
+      const desc = document.getElementById('project-desc').value.trim();
+      if (name) {
+        projects.push({ name, desc });
+        localStorage.setItem('projects', JSON.stringify(projects));
+        renderProjects();
+        projectForm.reset();
+      }
+    });
+
+    serviceForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const projectIndex = serviceProjectSelect.value;
+      const date = document.getElementById('service-date').value;
+      const hours = document.getElementById('service-hours').value;
+      const desc = document.getElementById('service-desc').value.trim();
+      if (projectIndex !== '') {
+        services.push({ projectIndex, date, hours, desc });
+        localStorage.setItem('services', JSON.stringify(services));
+        renderServices();
+        serviceForm.reset();
+      }
+    });
+
+    renderProjects();
+    renderServices();
+  </script>
+</body>
+</html>
