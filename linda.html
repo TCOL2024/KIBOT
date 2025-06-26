@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Linda Chat mit Siri-Voice</title>
+  <title>Linda Chat mit Google TTS</title>
   <style>
-    body { font-family: sans-serif; background: #f0f4f8; padding: 2rem; }
-    #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 500px; margin: auto; }
-    .line { margin-bottom: .5rem; }
-    .user { color: #1e6cff; font-weight: bold; }
-    .bot  { color: #008000; font-weight: bold; }
-    #controls { max-width: 500px; margin: 1rem auto; display: flex; align-items: center; gap: .5rem; }
-    #form { display: flex; max-width: 500px; margin: auto; margin-top: 1rem; }
-    #q    { flex: 1; padding: .5rem; font-size: 1rem; }
-    #btn, #voice-preview-btn { padding: .5rem 1rem; font-size: 1rem; }
+    body { font-family: sans-serif; background: #f0f4f8; padding: 2rem }
+    #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 500px; margin: auto }
+    .line { margin-bottom: .5rem }
+    .user { color: #1e6cff; font-weight: bold }
+    .bot  { color: #008000; font-weight: bold }
+    #controls { 
+      max-width: 500px; 
+      margin: 1rem auto; 
+      display: flex; 
+      align-items: center; 
+      gap: .5rem;
+    }
+    #form { display: flex; max-width: 500px; margin: auto; margin-top: 1rem }
+    #q    { flex: 1; padding: .5rem; font-size: 1rem }
+    #btn, #voice-preview-btn { padding: .5rem 1rem; font-size: 1rem }
   </style>
 </head>
 <body>
@@ -24,9 +30,11 @@
   <div id="controls">
     <input type="checkbox" id="tts-toggle" />
     <label for="tts-toggle">Sprachausgabe aktivieren</label>
+
     <select id="voice-select">
-      <option value="">(Siri-Stimme wählen)</option>
+      <option value="">(Google-Stimme wählen)</option>
     </select>
+
     <button id="voice-preview-btn" type="button">Stimme testen</button>
   </div>
 
@@ -46,27 +54,28 @@
       const previewBtn   = document.getElementById('voice-preview-btn');
       let voices = [];
 
-      // Siri-Stimmen laden (auf Safari/macOS/iOS verfügbar)
-      function loadSiriVoices() {
+      // Stimmen laden und nur die Google Deutsch-Stimmen ins Dropdown packen
+      function loadGoogleVoices() {
         voices = speechSynthesis.getVoices();
-        const siriVoices = voices.filter(v => /siri/i.test(v.name));
-        siriVoices.forEach(v => {
+        const googleDE = voices.filter(v =>
+          v.name.includes('Google') && v.lang === 'de-DE'
+        );
+        googleDE.forEach(v => {
           const opt = document.createElement('option');
           opt.value = v.name;
           opt.textContent = `${v.name} (${v.lang})`;
           voiceSelect.appendChild(opt);
         });
       }
-      speechSynthesis.addEventListener('voiceschanged', loadSiriVoices);
-      loadSiriVoices();
+      speechSynthesis.addEventListener('voiceschanged', loadGoogleVoices);
+      loadGoogleVoices();
 
       // Preview-Button
       previewBtn.addEventListener('click', () => {
-        const sample = 'Dies ist eine Siri-Stimmen Vorschau.';
-        speak(sample);
+        speak('Dies ist eine Vorschau der ausgewählten Google-Stimme.');
       });
 
-      // Chat-Submit
+      // Chat-Abfrage
       form.addEventListener('submit', async e => {
         e.preventDefault();
         const frage = q.value.trim();
