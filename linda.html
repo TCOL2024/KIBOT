@@ -19,13 +19,14 @@
       display: flex;
       width: 100%;
     }
-    /* Bild links */
+    /* Comic-Figur links */
     .comic {
       flex: 0 0 300px;
       background: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
       border-right: 1px solid #e1e4e8;
       padding: 1rem;
     }
@@ -176,6 +177,7 @@
       <div class="input-bar">
         <button id="tools-btn" title="Tools">⚙️</button>
         <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off">
+        <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
         <button id="send-btn" title="Senden">➤</button>
       </div>
     </div>
@@ -189,6 +191,7 @@
       const toolsBtn    = document.getElementById('tools-btn');
       const toolsPanel  = document.getElementById('tools-panel');
       const ttsToggle   = document.getElementById('tts-toggle');
+      const micBtn      = document.getElementById('mic-btn');
       const sendBtn     = document.getElementById('send-btn');
 
       // Tools-Panel togglen
@@ -200,6 +203,24 @@
           toolsPanel.style.display = 'none';
         }
       });
+
+      // Speech-to-Text (kein API nötig)
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        const recognition = new SpeechRec();
+        recognition.lang = 'de-DE';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
+        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
+        recognition.addEventListener('result', ev => {
+          input.value = ev.results[0][0].transcript;
+        });
+        micBtn.addEventListener('click', () => recognition.start());
+      } else {
+        micBtn.disabled = true;
+        micBtn.title = 'Spracherkennung nicht unterstützt';
+      }
 
       // Nachricht senden
       async function send() {
@@ -217,11 +238,7 @@
           });
           const raw = await res.text();
           let reply;
-          try {
-            reply = JSON.parse(raw).reply || raw;
-          } catch {
-            reply = raw;
-          }
+          try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
           if (ttsToggle.checked) speak(reply);
         } catch (err) {
@@ -230,9 +247,7 @@
       }
 
       sendBtn.addEventListener('click', send);
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') send();
-      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 
       // Hilfsfunktionen
       function append(who, msg, cls) {
