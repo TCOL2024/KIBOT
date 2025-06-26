@@ -42,4 +42,30 @@
         const res = await fetch(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message:
+          body: JSON.stringify({ message: frage })
+        });
+        const data = await res.json();
+        const reply = data.reply || data.antwort || 'Keine Antwort';
+        updateLastBot(reply);
+      } catch (err) {
+        console.error(err);
+        updateLastBot('Fehler: ' + err.message);
+      }
+    });
+
+    function append(who, msg, cls) {
+      const d = document.createElement('div');
+      d.className = 'line ' + cls;
+      d.textContent = `${who}: ${msg}`;
+      chat.appendChild(d);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function updateLastBot(msg) {
+      const bots = chat.querySelectorAll('.line.bot');
+      bots[bots.length - 1].textContent = `Bot: ${msg}`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
