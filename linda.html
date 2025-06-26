@@ -25,60 +25,21 @@
   </form>
 
   <script>
-    const webhookUrl = 'https://hook.us2.make.com/pkdx4lpoadncdgd9fdwvd2jlgnwfsgx6';
-    const chat     = document.getElementById('chat');
-    const form     = document.getElementById('form');
-    const q        = document.getElementById('q');
-    let timeoutId;  // für den Zwischen-Status
+    const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
+    const chat = document.getElementById('chat');
+    const form = document.getElementById('form');
+    const q    = document.getElementById('q');
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const frage = q.value.trim();
       if (!frage) return;
-
       append('Du', frage, 'user');
-      append('Bot', '⌛ Einen Moment …', 'bot');
+      append('Bot', '…', 'bot');
       q.value = '';
-
-      // Nach 5 Sekunden Zwischen-Nachricht
-      timeoutId = setTimeout(() => {
-        updateLastBot('…Dauert gerade etwas länger, bitte noch einen Augenblick');
-      }, 5000);
 
       try {
         const res = await fetch(webhookUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ message: frage })
-        });
-        clearTimeout(timeoutId);
-
-        const data = await res.json();
-        const reply = data.reply || data.antwort || 'Keine Antwort';
-        updateLastBot(reply);
-      } catch (err) {
-        clearTimeout(timeoutId);
-        console.error(err);
-        updateLastBot('Fehler: ' + err.message);
-      }
-    });
-
-    function append(who, msg, cls) {
-      const d = document.createElement('div');
-      d.className = 'line ' + cls;
-      d.textContent = `${who}: ${msg}`;
-      chat.appendChild(d);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function updateLastBot(msg) {
-      const bots = chat.querySelectorAll('.line.bot');
-      bots[bots.length - 1].textContent = `Bot: ${msg}`;
-      chat.scrollTop = chat.scrollHeight;
-    }
-  </script>
-</body>
-</html>
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message:
