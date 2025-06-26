@@ -23,11 +23,13 @@
     <input id="q" type="text" placeholder="Deine Frage…" required />
     <button id="btn">Senden</button>
   </form>
+
   <script>
     const webhookUrl = 'https://hook.us2.make.com/pkdx4lpoadncdgd9fdwvd2jlgnwfsgx6';
-    const chat = document.getElementById('chat');
-    const form = document.getElementById('form');
-    const q    = document.getElementById('q');
+    const chat     = document.getElementById('chat');
+    const form     = document.getElementById('form');
+    const q        = document.getElementById('q');
+    let timeoutId;  // für den Zwischen-Status
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -35,26 +37,31 @@
       if (!frage) return;
 
       append('Du', frage, 'user');
-      append('Bot', '…', 'bot');
+      append('Bot', '⌛ Einen Moment …', 'bot');
       q.value = '';
 
-      const payload = { message: frage };
-      console.log('Fetch URL:', webhookUrl);
-      console.log('Payload:', payload);
+      // Nach 5 Sekunden Zwischen-Nachricht
+      timeoutId = setTimeout(() => {
+        updateLastBot('…Dauert gerade etwas länger, bitte noch einen Augenblick');
+      }, 5000);
 
       try {
         const res = await fetch(webhookUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ message: frage })
         });
-        console.log('Fetch-Response Status:', res.status, res.statusText);
+        clearTimeout(timeoutId);
 
         const data = await res.json();
         const reply = data.reply || data.antwort || 'Keine Antwort';
         updateLastBot(reply);
       } catch (err) {
-        console.error('Fetch-Error:', err);
+        clearTimeout(timeoutId);
+        console.error(err);
         updateLastBot('Fehler: ' + err.message);
       }
     });
