@@ -10,11 +10,16 @@
     .line { margin-bottom: .5rem }
     .user { color: #1e6cff; font-weight: bold }
     .bot  { color: #008000; font-weight: bold }
-    #controls { max-width: 500px; margin: 1rem auto; display: flex; align-items: center; }
-    #tts-toggle { margin-right: .5rem }
+    #controls { 
+      max-width: 500px; 
+      margin: 1rem auto; 
+      display: flex; 
+      align-items: center; 
+      gap: .5rem;
+    }
     #form { display: flex; max-width: 500px; margin: auto; margin-top: 1rem }
     #q    { flex: 1; padding: .5rem; font-size: 1rem }
-    #btn  { padding: .5rem 1rem; font-size: 1rem }
+    #btn, #voice-preview-btn { padding: .5rem 1rem; font-size: 1rem }
   </style>
 </head>
 <body>
@@ -25,6 +30,12 @@
   <div id="controls">
     <input type="checkbox" id="tts-toggle" />
     <label for="tts-toggle">Sprachausgabe aktivieren</label>
+
+    <select id="voice-select">
+      <option value="">(Stimme wählen)</option>
+    </select>
+
+    <button id="voice-preview-btn" type="button">Stimme testen</button>
   </div>
 
   <form id="form">
@@ -34,11 +45,38 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat      = document.getElementById('chat');
-      const form      = document.getElementById('form');
-      const q         = document.getElementById('q');
-      const ttsToggle = document.getElementById('tts-toggle');
+      const webhookUrl       = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
+      const chat             = document.getElementById('chat');
+      const form             = document.getElementById('form');
+      const q                = document.getElementById('q');
+      const ttsToggle        = document.getElementById('tts-toggle');
+      const voiceSelect      = document.getElementById('voice-select');
+      const previewBtn       = document.getElementById('voice-preview-btn');
+      let voices = [];
+
+      // Stimmen laden und Dropdown füllen
+      function loadVoices() {
+        voices = speechSynthesis.getVoices();
+        // nur weibliche Stimmen (Schätzung über Name/Lang)
+        const female = voices.filter(v =>
+          /female|frau|frau/i.test(v.name) ||
+          (v.lang && v.lang.startsWith('de') && !/male|mann/i.test(v.name))
+        );
+        female.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.name;
+          opt.textContent = `${v.name} (${v.lang})`;
+          voiceSelect.appendChild(opt);
+        });
+      }
+      speechSynthesis.addEventListener('voiceschanged', loadVoices);
+      loadVoices();
+
+      // Preview-Button
+      previewBtn.addEventListener('click', () => {
+        const sample = 'Dies ist eine Vorschau der ausgewählten Stimme.';
+        speak(sample);
+      });
 
       form.addEventListener('submit', async e => {
         e.preventDefault();
@@ -85,8 +123,14 @@
 
       function speak(text) {
         if (!('speechSynthesis' in window)) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        const selected = voiceSelect.value;
+        if (selected) {
+          const v = voices.find(x => x.name === selected);
+          if (v) utter.voice = v;
+        }
         speechSynthesis.cancel();
-        speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        speechSynthesis.speak(utter);
       }
     });
   </script>
