@@ -24,8 +24,8 @@
       flex: 0 0 300px;
       background: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
       border-right: 1px solid #e1e4e8;
       padding: 1rem;
     }
@@ -33,6 +33,14 @@
       width: 100%;
       height: auto;
       border-radius: .5rem;
+    }
+    .comic-name {
+      margin-top: .5rem;
+      width: 100%;
+      text-align: center;
+      font-family: 'Segoe Script', 'Comic Sans MS', cursive;
+      font-size: 1.5rem;
+      color: #333;
     }
     /* Chat-Bereich rechts */
     .chat-area {
@@ -75,6 +83,7 @@
       background: #0969da;
       color: #fff;
     }
+    /* Tools-Panel */
     .tools-panel {
       position: absolute;
       bottom: 4.5rem;
@@ -146,9 +155,10 @@
 <body>
 
   <div class="container">
-    <!-- Bild der Dame -->
+    <!-- Bild der Dame + Name -->
     <div class="comic">
       <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda">
+      <div class="comic-name">Linda</div>
     </div>
 
     <!-- Chat-Bereich -->
@@ -166,7 +176,6 @@
       <div class="input-bar">
         <button id="tools-btn" title="Tools">⚙️</button>
         <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off">
-        <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
         <button id="send-btn" title="Senden">➤</button>
       </div>
     </div>
@@ -180,7 +189,6 @@
       const toolsBtn    = document.getElementById('tools-btn');
       const toolsPanel  = document.getElementById('tools-panel');
       const ttsToggle   = document.getElementById('tts-toggle');
-      const micBtn      = document.getElementById('mic-btn');
       const sendBtn     = document.getElementById('send-btn');
 
       // Tools-Panel togglen
@@ -192,25 +200,6 @@
           toolsPanel.style.display = 'none';
         }
       });
-
-      // Speech-to-Text
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      let recognition;
-      if (SpeechRec) {
-        recognition = new SpeechRec();
-        recognition.lang = 'de-DE';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.addEventListener('result', ev => {
-          input.value = ev.results[0][0].transcript;
-        });
-        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
-        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
-        micBtn.addEventListener('click', () => recognition.start());
-      } else {
-        micBtn.disabled = true;
-        micBtn.title = 'Spracherkennung nicht unterstützt';
-      }
 
       // Nachricht senden
       async function send() {
