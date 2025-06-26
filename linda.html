@@ -156,7 +156,7 @@
 <body>
 
   <div class="container">
-    <!-- Bild der Dame + Name -->
+    <!-- Comic-Bild & Name -->
     <div class="comic">
       <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda">
       <div class="comic-name">Linda</div>
@@ -177,7 +177,6 @@
       <div class="input-bar">
         <button id="tools-btn" title="Tools">⚙️</button>
         <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off">
-        <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
         <button id="send-btn" title="Senden">➤</button>
       </div>
     </div>
@@ -185,14 +184,16 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const webhookUrl  = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat        = document.getElementById('chat');
-      const input       = document.getElementById('q');
-      const toolsBtn    = document.getElementById('tools-btn');
-      const toolsPanel  = document.getElementById('tools-panel');
-      const ttsToggle   = document.getElementById('tts-toggle');
-      const micBtn      = document.getElementById('mic-btn');
-      const sendBtn     = document.getElementById('send-btn');
+      const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
+      const chat = document.getElementById('chat');
+      const input = document.getElementById('q');
+      const toolsBtn = document.getElementById('tools-btn');
+      const toolsPanel = document.getElementById('tools-panel');
+      const ttsToggle = document.getElementById('tts-toggle');
+      const sendBtn = document.getElementById('send-btn');
+
+      // Kontext beibehalten
+      const messages = [];
 
       // Tools-Panel togglen
       toolsBtn.addEventListener('click', () => {
@@ -204,22 +205,19 @@
         }
       });
 
-      // Speech-to-Text (kein API nötig)
+      // Speech-to-Text
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRec) {
         const recognition = new SpeechRec();
         recognition.lang = 'de-DE';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
-        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
-        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
+        recognition.addEventListener('start', () => toolsBtn.classList.add('recording'));
+        recognition.addEventListener('end', () => toolsBtn.classList.remove('recording'));
         recognition.addEventListener('result', ev => {
           input.value = ev.results[0][0].transcript;
         });
-        micBtn.addEventListener('click', () => recognition.start());
-      } else {
-        micBtn.disabled = true;
-        micBtn.title = 'Spracherkennung nicht unterstützt';
+        toolsBtn.addEventListener('click', () => recognition.start());
       }
 
       // Nachricht senden
@@ -227,6 +225,7 @@
         const text = input.value.trim();
         if (!text) return;
         append('Du', text, 'user');
+        messages.push({ role: 'user', content: text });
         append('Bot', '…', 'bot');
         input.value = '';
 
@@ -234,12 +233,13 @@
           const res = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({ messages })
           });
           const raw = await res.text();
           let reply;
           try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
+          messages.push({ role: 'assistant', content: reply });
           if (ttsToggle.checked) speak(reply);
         } catch (err) {
           updateLastBot('Fehler: ' + err.message);
@@ -270,6 +270,5 @@
       }
     });
   </script>
-
 </body>
 </html>
