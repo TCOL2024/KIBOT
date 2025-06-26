@@ -51,8 +51,10 @@
     <input id="q" type="text" placeholder="Deine Frage…" required />
     <button id="btn">Senden</button>
   </form>
+
   <script>
     const webhookUrl = 'https://hook.us2.make.com/pkdx4lpoadncdgd9fdwvd2jlgnwfsgx6';
+    const proxy = 'https://api.allorigins.win/raw?url=';
     const chat = document.getElementById('chat');
     const form = document.getElementById('form');
     const q = document.getElementById('q');
@@ -66,7 +68,7 @@
       q.value = '';
 
       try {
-        const res = await fetch(webhookUrl, {
+        const res = await fetch(proxy + encodeURIComponent(webhookUrl), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: frage })
@@ -80,7 +82,8 @@
         }
         updateLastBot(reply);
       } catch (err) {
-        updateLastBot('Fehler beim Laden');
+        console.error(err);
+        updateLastBot('Fehler beim Laden: ' + err.message);
       }
     });
 
