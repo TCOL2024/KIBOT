@@ -12,9 +12,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: #f7f7f8; color: #24292e;
     }
-    /* Container: Comic + Chat */
     .container { display: flex; width: 100%; }
-    /* Comic-Bereich */
     .comic {
       flex: 0 0 300px; background: #fff;
       display: flex; flex-direction: column; align-items: center;
@@ -26,7 +24,6 @@
       font-family: 'Segoe Script','Comic Sans MS',cursive;
       font-size: 1.5rem; color: #333;
     }
-    /* Chat-Bereich */
     .chat-area {
       flex: 1; display: flex; flex-direction: column; position: relative;
     }
@@ -46,7 +43,6 @@
     }
     .bot  { align-self: flex-start; background: #fff; color: #24292e; }
     .user { align-self: flex-end; background: #0969da; color: #fff; }
-    /* Tools-Panel */
     .tools-panel {
       position: absolute; bottom: 4.5rem; left: 1rem;
       background: #fff; border: 1px solid #e1e4e8; border-radius: .5rem;
@@ -54,7 +50,6 @@
       font-size: .9rem; display: none;
     }
     .tools-panel label { display: flex; align-items: center; gap: .5rem; }
-    /* Input-Bar */
     .input-bar {
       display: flex; align-items: center;
       padding: .5rem 1rem calc(env(safe-area-inset-bottom)+.5rem);
@@ -74,46 +69,41 @@
     .recording { color: #d00 !important; }
     @media (max-width: 600px) {
       .container { flex-direction: column; }
-      .comic    { border-right: none; border-bottom: 1px solid #e1e4e8; }
+      .comic { border-right: none; border-bottom: 1px solid #e1e4e8; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="comic">
-      <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png"
-           alt="Dame Linda" />
+      <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda" />
       <div class="comic-name">Linda</div>
     </div>
     <div class="chat-area">
       <header>Linda. Deine persönliche Assistentin in der Proximus.</header>
-      <div id="chat">
-        <div class="message bot">Bot: Wie kann ich dir heute helfen?</div>
-      </div>
+      <div id="chat"><div class="message bot">Bot: Wie kann ich dir heute helfen?</div></div>
       <div class="tools-panel" id="tools-panel">
         <label><input type="checkbox" id="tts-toggle" /> Stimmen an/aus</label>
       </div>
       <div class="input-bar">
         <button id="tools-btn" title="Tools">⚙️</button>
-        <input  id="q" type="text" placeholder="Deine Frage…" autocomplete="off" />
+        <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off" />
         <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
         <button id="send-btn" title="Senden">➤</button>
       </div>
     </div>
   </div>
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat     = document.getElementById('chat');
-      const input    = document.getElementById('q');
+      const chat = document.getElementById('chat');
+      const input = document.getElementById('q');
       const toolsBtn = document.getElementById('tools-btn');
       const toolsPanel = document.getElementById('tools-panel');
-      const ttsToggle  = document.getElementById('tts-toggle');
-      const micBtn   = document.getElementById('mic-btn');
-      const sendBtn  = document.getElementById('send-btn');
+      const ttsToggle = document.getElementById('tts-toggle');
+      const micBtn = document.getElementById('mic-btn');
+      const sendBtn = document.getElementById('send-btn');
 
-      // Tools-Panel toggeln
       toolsBtn.addEventListener('click', () => {
         toolsPanel.style.display = toolsPanel.style.display === 'block' ? 'none' : 'block';
       });
@@ -126,45 +116,30 @@
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRec) {
         const recognition = new SpeechRec();
-        recognition.lang = 'de-DE';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+        recognition.lang = 'de-DE'; recognition.interimResults = false; recognition.maxAlternatives = 1;
         recognition.addEventListener('start', () => micBtn.classList.add('recording'));
-        recognition.addEventListener('end', ()   => micBtn.classList.remove('recording'));
-        recognition.addEventListener('result', ev => {
-          input.value = ev.results[0][0].transcript;
-        });
+        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
+        recognition.addEventListener('result', ev => { input.value = ev.results[0][0].transcript; });
         micBtn.addEventListener('click', () => recognition.start());
-      } else {
-        micBtn.disabled = true;
-        micBtn.title = 'Spracherkennung nicht unterstützt';
-      }
+      } else { micBtn.disabled = true; micBtn.title = 'Spracherkennung nicht unterstützt'; }
 
-      // Nachricht senden
       async function send() {
-        const text = input.value.trim();
-        if (!text) return;
-        append('Du', text, 'user');
-        append('Bot', '…', 'bot');
-        input.value = '';
-
+        const text = input.value.trim(); if (!text) return;
+        append('Du', text, 'user'); append('Bot', '…', 'bot'); input.value = '';
         console.log('🔔 sende an Make:', text);
         try {
+          // Als URL-encoded FormData senden, falls JSON nicht geparsed wird
+          const params = new URLSearchParams();
+          params.append('message', text);
           const res = await fetch(webhookUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              message: text,
-              question: text,
-              text: text
-            })
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
           });
           console.log('📬 Status:', res.status, res.statusText);
-          const raw = await res.text();
-          console.log('📥 Raw:', raw);
+          const raw = await res.text(); console.log('📥 Raw:', raw);
           let reply;
-          try { reply = JSON.parse(raw).reply || raw; }
-          catch { reply = raw; }
+          try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
           if (ttsToggle.checked) speak(reply);
         } catch (err) {
@@ -173,35 +148,21 @@
         }
       }
 
-      // Enter zum Senden
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          send();
-        }
-      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
       sendBtn.addEventListener('click', send);
 
-      // Hilfsfunktionen
       function append(who, msg, cls) {
-        const el = document.createElement('div');
-        el.className = `message ${cls}`;
-        el.textContent = `${who}: ${msg}`;
-        chat.appendChild(el);
-        chat.scrollTop = chat.scrollHeight;
+        const el = document.createElement('div'); el.className = `message ${cls}`;
+        el.textContent = `${who}: ${msg}`; chat.appendChild(el); chat.scrollTop = chat.scrollHeight;
       }
       function updateLastBot(msg) {
         const bots = chat.querySelectorAll('.message.bot');
-        bots[bots.length-1].textContent = `Bot: ${msg}`;
-        chat.scrollTop = chat.scrollHeight;
+        bots[bots.length-1].textContent = `Bot: ${msg}`; chat.scrollTop = chat.scrollHeight;
       }
       function speak(text) {
-        if (!('speechSynthesis' in window)) return;
-        const u = new SpeechSynthesisUtterance(text);
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
+        if (!('speechSynthesis' in window)) return; const u = new SpeechSynthesisUtterance(text);
+        speechSynthesis.cancel(); speechSynthesis.speak(u);
       }
-
     });
   </script>
 </body>
