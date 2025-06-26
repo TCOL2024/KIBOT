@@ -14,12 +14,12 @@
       background: #f7f7f8;
       color: #24292e;
     }
-    /* Gesamter Container: Comic links, Chat rechts */
+    /* Gesamter Container */
     .container {
       display: flex;
       width: 100%;
     }
-    /* Comic-Figur */
+    /* Bild links */
     .comic {
       flex: 0 0 300px;
       background: #fff;
@@ -29,12 +29,14 @@
       border-right: 1px solid #e1e4e8;
       padding: 1rem;
     }
-    .comic svg {
+    .comic img {
       width: 100%;
       height: auto;
+      border-radius: .5rem;
     }
-    /* Chat-Bereich */
+    /* Chat-Bereich rechts */
     .chat-area {
+      position: relative;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -75,7 +77,8 @@
     }
     .tools-panel {
       position: absolute;
-      bottom: 4.5rem; left: 1rem;
+      bottom: 4.5rem;
+      left: 1rem;
       background: #fff;
       border: 1px solid #e1e4e8;
       border-radius: .5rem;
@@ -94,29 +97,33 @@
       margin: 0;
       width: auto;
     }
+    /* Input-Bar (Footer) */
     .input-bar {
       display: flex;
       align-items: center;
-      padding: .5rem 1rem;
+      padding: .5rem 1rem calc(env(safe-area-inset-bottom) + .5rem);
       background: #fff;
       border-top: 1px solid #e1e4e8;
     }
     .input-bar button {
       background: none;
       border: none;
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       cursor: pointer;
       color: #57606a;
       margin: 0 .25rem;
+      padding: .75rem;
     }
     .input-bar button:hover {
       color: #24292e;
     }
     #q {
       flex: 1;
-      border: 1px solid #d1d5da;
+      border: none;
+      outline: none;
+      background: #f0f4f8;
       border-radius: .5rem;
-      padding: .75rem 1rem;
+      padding: 1rem;
       margin: 0 .5rem;
       font-size: 1rem;
       line-height: 1.4;
@@ -124,33 +131,24 @@
     .recording {
       color: #d00 !important;
     }
+    /* Mobile-Optimierung */
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+      }
+      .comic {
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+      }
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- Comicfigur Linda -->
+    <!-- Bild der Dame -->
     <div class="comic">
-      <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
-        <!-- Haare -->
-        <path d="M150 0 C100 0, 50 50, 50 100 C50 150, 100 200, 150 200 C200 200, 250 150, 250 100 C250 50, 200 0, 150 0"
-              fill="#FFDD57"/>
-        <!-- Kopf -->
-        <circle cx="150" cy="200" r="80" fill="#FFE0BD"/>
-        <!-- Brille -->
-        <rect x="100" y="170" width="40" height="20" rx="5" ry="5" fill="none" stroke="#000" stroke-width="4"/>
-        <rect x="160" y="170" width="40" height="20" rx="5" ry="5" fill="none" stroke="#000" stroke-width="4"/>
-        <line x1="140" y1="180" x2="160" y2="180" stroke="#000" stroke-width="4"/>
-        <!-- Augen -->
-        <circle cx="120" cy="180" r="5" fill="#000"/>
-        <circle cx="180" cy="180" r="5" fill="#000"/>
-        <!-- Mund -->
-        <path d="M130 230 Q150 250, 170 230" stroke="#000" stroke-width="3" fill="none"/>
-        <!-- Bluse -->
-        <path d="M70 280 L230 280 L270 400 L30 400 Z" fill="#FF6699"/>
-        <!-- Ausschnitt -->
-        <path d="M70 280 Q150 320, 230 280" fill="#FFE0BD"/>
-      </svg>
+      <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda">
     </div>
 
     <!-- Chat-Bereich -->
