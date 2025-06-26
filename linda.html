@@ -57,41 +57,6 @@
       background: #fff;
       border-bottom: 1px solid #e1e4e8;
     }
-    /* Info-Card Styles */
-    .info-card {
-      max-width: 600px;
-      margin: 1.5rem auto;
-      padding: 1.5rem;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      font-family: system-ui, sans-serif;
-      line-height: 1.6;
-      color: #333;
-    }
-    .info-card h2 {
-      margin-top: 0;
-      font-size: 1.5rem;
-      color: #0969da;
-      border-bottom: 2px solid #0969da;
-      padding-bottom: 0.25rem;
-    }
-    .info-card ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 1rem 0;
-    }
-    .info-card li {
-      position: relative;
-      padding-left: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
-    .info-card li::before {
-      content: "✔️";
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
     #chat {
       flex: 1;
       overflow-y: auto;
@@ -178,13 +143,8 @@
     }
     /* Mobile-Optimierung */
     @media (max-width: 600px) {
-      .container {
-        flex-direction: column;
-      }
-      .comic {
-        border-right: none;
-        border-bottom: 1px solid #e1e4e8;
-      }
+      .container { flex-direction: column; }
+      .comic { border-right: none; border-bottom: 1px solid #e1e4e8; }
     }
   </style>
 </head>
@@ -200,19 +160,6 @@
     <!-- Chat-Bereich -->
     <div class="chat-area">
       <header>Linda. Deine persönliche Assistentin in der Proximus.</header>
-
-      <!-- Eingebettete Info-Karte -->
-      <div class="info-card">
-        <h2>Leistungsarten der privaten Pflegeversicherung</h2>
-        <p>Die private Pflegeversicherung erstattet Aufwendungen für verschiedene Pflegeleistungen, insbesondere:</p>
-        <ul>
-          <li><strong>Häusliche Pflegehilfe</strong><br>(körperbezogene Pflegemaßnahmen, pflegerische Betreuung, Hilfe bei der Haushaltsführung)</li>
-          <li><strong>Pflegegeld</strong><br>(abhängig vom Pflegegrad)</li>
-          <li><strong>Kurzzeitpflege</strong><br>(zeitlich begrenzte vollstationäre Pflege)</li>
-          <li><strong>Vollstationäre Pflege</strong><br>(langfristige Unterbringung in Pflegeeinrichtungen)</li>
-        </ul>
-      </div>
-
       <div id="chat">
         <div class="message bot">Bot: Wie kann ich dir heute helfen?</div>
       </div>
