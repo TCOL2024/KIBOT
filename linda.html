@@ -3,130 +3,206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Linda Chat mit Google TTS</title>
+  <title>Linda Chat im ChatGPT-Style</title>
   <style>
-    body { font-family: sans-serif; background: #f0f4f8; padding: 2rem }
-    #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 500px; margin: auto }
-    .line { margin-bottom: .5rem }
-    .user { color: #1e6cff; font-weight: bold }
-    .bot  { color: #008000; font-weight: bold }
-    #controls { 
-      max-width: 500px; 
-      margin: 1rem auto; 
-      display: flex; 
-      align-items: center; 
+    /* Basis */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', sans-serif;
+      background: #fafafa;
+      color: #24292e;
+    }
+    /* Header */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e1e4e8;
+      padding: .75rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    /* Chat-Window */
+    #chat {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .line {
+      max-width: 75%;
+      padding: .75rem 1rem;
+      border-radius: 1rem;
+      word-wrap: break-word;
+    }
+    .user {
+      align-self: flex-end;
+      background: #daf0ff;
+      color: #0366d6;
+    }
+    .bot {
+      align-self: flex-start;
+      background: #f1f3f5;
+      color: #24292e;
+    }
+    /* Input-Bereich */
+    .input-container {
+      display: flex;
+      align-items: center;
+      padding: .5rem;
+      background: #fff;
+      border-top: 1px solid #e1e4e8;
+    }
+    .input-container button {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      padding: .5rem;
+      cursor: pointer;
+      color: #57606a;
+    }
+    .input-container button:hover {
+      color: #24292e;
+    }
+    #q {
+      flex: 1;
+      border: 1px solid #d1d5da;
+      border-radius: .5rem;
+      padding: .5rem  .75rem;
+      margin: 0 .5rem;
+      font-size: 1rem;
+    }
+    /* Tools-Panel */
+    .tools-panel {
+      position: absolute;
+      bottom: 3.5rem;
+      left: 1rem;
+      background: #fff;
+      border: 1px solid #e1e4e8;
+      border-radius: .5rem;
+      padding: .5rem 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+      font-size: .9rem;
+    }
+    .tools-panel label {
+      display: flex;
+      align-items: center;
       gap: .5rem;
     }
-    #form { display: flex; max-width: 500px; margin: auto; margin-top: 1rem }
-    #q    { flex: 1; padding: .5rem; font-size: 1rem }
-    #btn, #voice-preview-btn { padding: .5rem 1rem; font-size: 1rem }
   </style>
 </head>
 <body>
+  <header>Linda Chat</header>
   <div id="chat">
     <div class="line bot">Bot: Hallo! Wie kann ich dir helfen?</div>
   </div>
 
-  <div id="controls">
-    <input type="checkbox" id="tts-toggle" />
-    <label for="tts-toggle">Sprachausgabe aktivieren</label>
-
-    <select id="voice-select">
-      <option value="">(Google-Stimme wählen)</option>
-    </select>
-
-    <button id="voice-preview-btn" type="button">Stimme testen</button>
+  <div class="tools-panel" id="tools-panel">
+    <label>
+      <input type="checkbox" id="tts-toggle" />
+      Stimmen an/aus
+    </label>
   </div>
 
-  <form id="form">
-    <input id="q" type="text" placeholder="Deine Frage…" required />
-    <button id="btn" type="submit">Senden</button>
-  </form>
+  <div class="input-container">
+    <button id="tools-btn" title="Tools">⚙️</button>
+    <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off" />
+    <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
+    <button id="send-btn" title="Senden">➤</button>
+  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const webhookUrl   = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat         = document.getElementById('chat');
-      const form         = document.getElementById('form');
-      const q            = document.getElementById('q');
-      const ttsToggle    = document.getElementById('tts-toggle');
-      const voiceSelect  = document.getElementById('voice-select');
-      const previewBtn   = document.getElementById('voice-preview-btn');
-      let voices = [];
+      const webhookUrl  = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
+      const chat        = document.getElementById('chat');
+      const input       = document.getElementById('q');
+      const micBtn      = document.getElementById('mic-btn');
+      const sendBtn     = document.getElementById('send-btn');
+      const toolsBtn    = document.getElementById('tools-btn');
+      const toolsPanel  = document.getElementById('tools-panel');
+      const ttsToggle   = document.getElementById('tts-toggle');
 
-      // Stimmen laden und nur die Google Deutsch-Stimmen ins Dropdown packen
-      function loadGoogleVoices() {
-        voices = speechSynthesis.getVoices();
-        const googleDE = voices.filter(v =>
-          v.name.includes('Google') && v.lang === 'de-DE'
-        );
-        googleDE.forEach(v => {
-          const opt = document.createElement('option');
-          opt.value = v.name;
-          opt.textContent = `${v.name} (${v.lang})`;
-          voiceSelect.appendChild(opt);
-        });
-      }
-      speechSynthesis.addEventListener('voiceschanged', loadGoogleVoices);
-      loadGoogleVoices();
-
-      // Preview-Button
-      previewBtn.addEventListener('click', () => {
-        speak('Dies ist eine Vorschau der ausgewählten Google-Stimme.');
+      // Tools-Panel umschalten
+      toolsBtn.addEventListener('click', () => {
+        toolsPanel.style.display = toolsPanel.style.display === 'block' ? 'none' : 'block';
+      });
+      document.addEventListener('click', e => {
+        if (!toolsPanel.contains(e.target) && e.target !== toolsBtn) {
+          toolsPanel.style.display = 'none';
+        }
       });
 
-      // Chat-Abfrage
-      form.addEventListener('submit', async e => {
-        e.preventDefault();
-        const frage = q.value.trim();
-        if (!frage) return;
-        append('Du', frage, 'user');
-        append('Bot', '…', 'bot');
-        q.value = '';
+      // Speech-to-Text
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recognition;
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.addEventListener('result', e => {
+          input.value = e.results[0][0].transcript;
+        });
+        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
+        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
+        micBtn.addEventListener('click', () => recognition.start());
+      } else {
+        micBtn.disabled = true;
+        micBtn.title = 'Spracherkennung nicht unterstützt';
+      }
 
+      // Chat senden
+      async function send() {
+        const text = input.value.trim();
+        if (!text) return;
+        append('Du', text, 'user');
+        append('Bot', '…', 'bot');
+        input.value = '';
         try {
           const res  = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: frage })
+            body: JSON.stringify({ message: text })
           });
-          const text = await res.text();
-          let data;
-          try { data = JSON.parse(text) }
-          catch { data = { reply: text } }
-          const reply = data.reply || data.antwort || 'Keine Antwort';
+          const reply = await (async () => {
+            const t = await res.text();
+            try { return JSON.parse(t).reply || t; }
+            catch { return t; }
+          })();
           updateLastBot(reply);
+          if (ttsToggle.checked) speak(reply);
         } catch (err) {
-          console.error(err);
           updateLastBot('Fehler: ' + err.message);
         }
+      }
+
+      sendBtn.addEventListener('click', send);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') send();
       });
 
+      // Helfer
       function append(who, msg, cls) {
-        const d = document.createElement('div');
-        d.className = 'line ' + cls;
-        d.textContent = `${who}: ${msg}`;
-        chat.appendChild(d);
+        const el = document.createElement('div');
+        el.className = `line ${cls}`;
+        el.textContent = `${who}: ${msg}`;
+        chat.appendChild(el);
         chat.scrollTop = chat.scrollHeight;
       }
-
       function updateLastBot(msg) {
         const bots = chat.querySelectorAll('.line.bot');
-        bots[bots.length - 1].textContent = `Bot: ${msg}`;
+        bots[bots.length-1].textContent = `Bot: ${msg}`;
         chat.scrollTop = chat.scrollHeight;
-        if (ttsToggle.checked) speak(msg);
       }
-
       function speak(text) {
         if (!('speechSynthesis' in window)) return;
-        const utter = new SpeechSynthesisUtterance(text);
-        const selected = voiceSelect.value;
-        if (selected) {
-          const v = voices.find(x => x.name === selected);
-          if (v) utter.voice = v;
-        }
+        const u = new SpeechSynthesisUtterance(text);
         speechSynthesis.cancel();
-        speechSynthesis.speak(utter);
+        speechSynthesis.speak(u);
       }
     });
   </script>
