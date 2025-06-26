@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Linda Chat</title>
+  <title>Linda Chat mit ElevenLabs-TTS</title>
   <style>
     body { font-family: sans-serif; background: #f0f4f8; padding: 2rem }
     #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 500px; margin: auto }
@@ -28,14 +28,11 @@
   </div>
 
   <div id="controls">
-    <input type="checkbox" id="tts-toggle" />
-    <label for="tts-toggle">Sprachausgabe aktivieren</label>
-
+    <input id="api-key" type="password" placeholder="ElevenLabs API-Key" style="flex:1" />
     <select id="voice-select">
-      <option value="">(Stimme wählen)</option>
+      <option value="ZF6FPAbjXT4488VcRRnw" selected>Jenny (Deutsch, sehr natürlich)</option>
     </select>
-
-    <button id="voice-preview-btn" type="button">Stimme testen</button>
+    <button id="voice-preview-btn" type="button">Test-Stimme</button>
   </div>
 
   <form id="form">
@@ -45,44 +42,24 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const webhookUrl       = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat             = document.getElementById('chat');
-      const form             = document.getElementById('form');
-      const q                = document.getElementById('q');
-      const ttsToggle        = document.getElementById('tts-toggle');
-      const voiceSelect      = document.getElementById('voice-select');
-      const previewBtn       = document.getElementById('voice-preview-btn');
-      let voices = [];
-
-      // Stimmen laden und Dropdown füllen
-      function loadVoices() {
-        voices = speechSynthesis.getVoices();
-        // nur weibliche Stimmen (Schätzung über Name/Lang)
-        const female = voices.filter(v =>
-          /female|frau|frau/i.test(v.name) ||
-          (v.lang && v.lang.startsWith('de') && !/male|mann/i.test(v.name))
-        );
-        female.forEach(v => {
-          const opt = document.createElement('option');
-          opt.value = v.name;
-          opt.textContent = `${v.name} (${v.lang})`;
-          voiceSelect.appendChild(opt);
-        });
-      }
-      speechSynthesis.addEventListener('voiceschanged', loadVoices);
-      loadVoices();
+      const chat        = document.getElementById('chat');
+      const form        = document.getElementById('form');
+      const q           = document.getElementById('q');
+      const apiKeyInput = document.getElementById('api-key');
+      const voiceSelect = document.getElementById('voice-select');
+      const previewBtn  = document.getElementById('voice-preview-btn');
+      const webhookUrl  = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
 
       // Preview-Button
       previewBtn.addEventListener('click', () => {
-        const sample = 'Dies ist eine Vorschau der ausgewählten Stimme.';
-        speak(sample);
+        speak('Dies ist eine Vorschau der Stimme.');
       });
 
+      // Chat-Submit
       form.addEventListener('submit', async e => {
         e.preventDefault();
         const frage = q.value.trim();
         if (!frage) return;
-
         append('Du', frage, 'user');
         append('Bot', '…', 'bot');
         q.value = '';
@@ -90,16 +67,16 @@
         try {
           const res  = await fetch(webhookUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: frage })
           });
           const text = await res.text();
           let data;
           try { data = JSON.parse(text) }
-          catch { data = { reply: text } }
-
+          catch { data = { reply: text }; }
           const reply = data.reply || data.antwort || 'Keine Antwort';
           updateLastBot(reply);
+          speak(reply);
         } catch (err) {
           console.error(err);
           updateLastBot('Fehler: ' + err.message);
@@ -118,19 +95,29 @@
         const bots = chat.querySelectorAll('.line.bot');
         bots[bots.length - 1].textContent = `Bot: ${msg}`;
         chat.scrollTop = chat.scrollHeight;
-        if (ttsToggle.checked) speak(msg);
       }
 
-      function speak(text) {
-        if (!('speechSynthesis' in window)) return;
-        const utter = new SpeechSynthesisUtterance(text);
-        const selected = voiceSelect.value;
-        if (selected) {
-          const v = voices.find(x => x.name === selected);
-          if (v) utter.voice = v;
-        }
-        speechSynthesis.cancel();
-        speechSynthesis.speak(utter);
+      // ElevenLabs-TTS
+      async function speak(text) {
+        const key     = apiKeyInput.value.trim();
+        const voiceId = voiceSelect.value;
+        if (!key || !voiceId) return;
+        const res = await fetch(
+          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'xi-api-key': key,
+              'Accept': 'audio/mpeg'
+            },
+            body: JSON.stringify({ text })
+          }
+        );
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.play();
       }
     });
   </script>
