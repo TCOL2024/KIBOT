@@ -5,24 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Linda Chat</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f0f4f8;
-      padding: 2rem;
-    }
-    #chat {
-      background: #fff;
-      padding: 1rem;
-      border-radius: 8px;
-      max-width: 500px;
-      margin: auto;
-    }
-    .line { margin-bottom: .5rem }
-    .user { color: #1e6cff; font-weight: bold }
-    .bot  { color: #008000; font-weight: bold }
-    #form { display: flex; margin-top: 1rem }
-    #q    { flex: 1; padding: .5rem; font-size: 1rem }
-    #btn  { padding: .5rem 1rem; font-size: 1rem }
+    body { font-family: sans-serif; background: #f0f4f8; padding: 2rem; }
+    #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 500px; margin: auto; }
+    .line { margin-bottom: .5rem; }
+    .user { color: #1e6cff; font-weight: bold; }
+    .bot  { color: #008000; font-weight: bold; }
+    #form { display: flex; margin-top: 1rem; }
+    #q    { flex: 1; padding: .5rem; font-size: 1rem; }
+    #btn  { padding: .5rem 1rem; font-size: 1rem; }
   </style>
 </head>
 <body>
@@ -33,9 +23,9 @@
     <input id="q" type="text" placeholder="Deine Frage…" required />
     <button id="btn">Senden</button>
   </form>
+
   <script>
     const webhookUrl = 'https://hook.us2.make.com/pkdx4lpoadncdgd9fdwvd2jlgnwfsgx6';
-    const proxy      = 'https://api.allorigins.win/raw?url=';
     const chat = document.getElementById('chat');
     const form = document.getElementById('form');
     const q    = document.getElementById('q');
@@ -44,29 +34,25 @@
       e.preventDefault();
       const frage = q.value.trim();
       if (!frage) return;
-
       append('Du', frage, 'user');
-      append('Bot', '⌛ Einen Moment …', 'bot');
+      append('Bot', '…', 'bot');
       q.value = '';
 
       try {
-        // Wir senden jetzt per GET – AllOrigins unterstützt nur GET
-        const fullUrl = proxy + encodeURIComponent(`${webhookUrl}?message=${encodeURIComponent(frage)}`);
-        const res = await fetch(fullUrl);
-        if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-
-        let reply;
-        try {
-          const data = await res.json();
-          reply = data.reply || data.antwort || JSON.stringify(data);
-        } catch {
-          reply = await res.text();
-        }
-
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ message: frage })
+        });
+        const data = await res.json();
+        const reply = data.reply || data.antwort || 'Keine Antwort';
         updateLastBot(reply);
       } catch (err) {
         console.error(err);
-        updateLastBot('Fehler beim Laden: ' + err.message);
+        updateLastBot('Fehler: ' + err.message);
       }
     });
 
@@ -79,17 +65,9 @@
     }
 
     function updateLastBot(msg) {
-      const lines = chat.querySelectorAll('.line.bot');
-      const last  = lines[lines.length - 1];
-      if (last) last.textContent = `Bot: ${msg}`;
+      const bots = chat.querySelectorAll('.line.bot');
+      bots[bots.length - 1].textContent = `Bot: ${msg}`;
       chat.scrollTop = chat.scrollHeight;
-      speak(msg);
-    }
-
-    function speak(text) {
-      if (!('speechSynthesis' in window)) return;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(new SpeechSynthesisUtterance(text));
     }
   </script>
 </body>
