@@ -21,7 +21,7 @@
   </div>
   <form id="form">
     <input id="q" type="text" placeholder="Deine Frage…" required />
-    <button id="btn">Senden</button>
+    <button id="btn" type="submit">Senden</button>
   </form>
 
   <script>
@@ -34,17 +34,25 @@
       e.preventDefault();
       const frage = q.value.trim();
       if (!frage) return;
+
       append('Du', frage, 'user');
       append('Bot', '…', 'bot');
       q.value = '';
 
       try {
-        const res = await fetch(webhookUrl, {
+        const res  = await fetch(webhookUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
           body: JSON.stringify({ message: frage })
         });
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // falls JSON ungültig, Rohtext als reply verwenden
+          data = { reply: text };
+        }
         const reply = data.reply || data.antwort || 'Keine Antwort';
         updateLastBot(reply);
       } catch (err) {
