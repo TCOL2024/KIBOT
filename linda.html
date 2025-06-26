@@ -176,6 +176,7 @@
       <div class="input-bar">
         <button id="tools-btn" title="Tools">⚙️</button>
         <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off">
+        <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
         <button id="send-btn" title="Senden">➤</button>
       </div>
     </div>
@@ -183,13 +184,19 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const webhookUrl  = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat        = document.getElementById('chat');
-      const input       = document.getElementById('q');
-      const toolsBtn    = document.getElementById('tools-btn');
-      const toolsPanel  = document.getElementById('tools-panel');
-      const ttsToggle   = document.getElementById('tts-toggle');
-      const sendBtn     = document.getElementById('send-btn');
+      const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
+      const chat      = document.getElementById('chat');
+      const input     = document.getElementById('q');
+      const toolsBtn  = document.getElementById('tools-btn');
+      const toolsPanel= document.getElementById('tools-panel');
+      const ttsToggle = document.getElementById('tts-toggle');
+      const micBtn    = document.getElementById('mic-btn');
+      const sendBtn   = document.getElementById('send-btn');
+
+      // Kontext-Array initialisieren
+      const messages = [
+        { role: 'assistant', content: 'Wie kann ich dir heute helfen?' }
+      ];
 
       // Tools-Panel togglen
       toolsBtn.addEventListener('click', () => {
@@ -201,11 +208,30 @@
         }
       });
 
-      // Nachricht senden
+      // Speech-to-Text
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        const recognition = new SpeechRec();
+        recognition.lang = 'de-DE';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
+        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
+        recognition.addEventListener('result', ev => {
+          input.value = ev.results[0][0].transcript;
+        });
+        micBtn.addEventListener('click', () => recognition.start());
+      } else {
+        micBtn.disabled = true;
+        micBtn.title = 'Spracherkennung nicht unterstützt';
+      }
+
+      // Nachricht senden mit vollem Kontext
       async function send() {
         const text = input.value.trim();
         if (!text) return;
         append('Du', text, 'user');
+        messages.push({ role: 'user', content: text });
         append('Bot', '…', 'bot');
         input.value = '';
 
@@ -213,28 +239,29 @@
           const res = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({ messages })
           });
           const raw = await res.text();
           let reply;
-          try {
-            reply = JSON.parse(raw).reply || raw;
-          } catch {
-            reply = raw;
-          }
+          try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
+          messages.push({ role: 'assistant', content: reply });
           if (ttsToggle.checked) speak(reply);
         } catch (err) {
           updateLastBot('Fehler: ' + err.message);
         }
       }
 
-      sendBtn.addEventListener('click', send);
+      // Enter & Button Events
       input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') send();
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        }
       });
+      sendBtn.addEventListener('click', send);
 
-      // Hilfsfunktionen
+      // Helper-Funktionen
       function append(who, msg, cls) {
         const el = document.createElement('div');
         el.className = `message ${cls}`;
@@ -255,6 +282,5 @@
       }
     });
   </script>
-
 </body>
 </html>
