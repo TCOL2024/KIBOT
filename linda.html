@@ -245,6 +245,8 @@
           let reply;
           try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
+          // <<< HIER die Sprachausgabe einfügen >>>
+          speak(reply);
           messages.push({ role: 'assistant', content: reply });
           if (ttsToggle.checked) speak(reply);
         } catch (err) {
@@ -278,7 +280,7 @@
         if (!('speechSynthesis' in window)) return;
         const u = new SpeechSynthesisUtterance(text);
         speechSynthesis.cancel();
-        speechSynthesis.speak(u);
+        window.speechSynthesis.speak(u);
       }
     });
   </script>
