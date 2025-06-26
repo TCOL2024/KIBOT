@@ -57,6 +57,41 @@
       background: #fff;
       border-bottom: 1px solid #e1e4e8;
     }
+    /* Info-Card Styles */
+    .info-card {
+      max-width: 600px;
+      margin: 1.5rem auto;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-family: system-ui, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+    .info-card h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      color: #0969da;
+      border-bottom: 2px solid #0969da;
+      padding-bottom: 0.25rem;
+    }
+    .info-card ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 1rem 0;
+    }
+    .info-card li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .info-card li::before {
+      content: "✔️";
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
     #chat {
       flex: 1;
       overflow-y: auto;
@@ -156,7 +191,7 @@
 <body>
 
   <div class="container">
-    <!-- Comic-Bild & Name -->
+    <!-- Bild der Dame + Name -->
     <div class="comic">
       <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda">
       <div class="comic-name">Linda</div>
@@ -165,6 +200,19 @@
     <!-- Chat-Bereich -->
     <div class="chat-area">
       <header>Linda. Deine persönliche Assistentin in der Proximus.</header>
+
+      <!-- Eingebettete Info-Karte -->
+      <div class="info-card">
+        <h2>Leistungsarten der privaten Pflegeversicherung</h2>
+        <p>Die private Pflegeversicherung erstattet Aufwendungen für verschiedene Pflegeleistungen, insbesondere:</p>
+        <ul>
+          <li><strong>Häusliche Pflegehilfe</strong><br>(körperbezogene Pflegemaßnahmen, pflegerische Betreuung, Hilfe bei der Haushaltsführung)</li>
+          <li><strong>Pflegegeld</strong><br>(abhängig vom Pflegegrad)</li>
+          <li><strong>Kurzzeitpflege</strong><br>(zeitlich begrenzte vollstationäre Pflege)</li>
+          <li><strong>Vollstationäre Pflege</strong><br>(langfristige Unterbringung in Pflegeeinrichtungen)</li>
+        </ul>
+      </div>
+
       <div id="chat">
         <div class="message bot">Bot: Wie kann ich dir heute helfen?</div>
       </div>
@@ -184,16 +232,13 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat = document.getElementById('chat');
-      const input = document.getElementById('q');
-      const toolsBtn = document.getElementById('tools-btn');
-      const toolsPanel = document.getElementById('tools-panel');
-      const ttsToggle = document.getElementById('tts-toggle');
-      const sendBtn = document.getElementById('send-btn');
-
-      // Kontext beibehalten
-      const messages = [];
+      const webhookUrl  = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
+      const chat        = document.getElementById('chat');
+      const input       = document.getElementById('q');
+      const toolsBtn    = document.getElementById('tools-btn');
+      const toolsPanel  = document.getElementById('tools-panel');
+      const ttsToggle   = document.getElementById('tts-toggle');
+      const sendBtn     = document.getElementById('send-btn');
 
       // Tools-Panel togglen
       toolsBtn.addEventListener('click', () => {
@@ -212,12 +257,15 @@
         recognition.lang = 'de-DE';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
-        recognition.addEventListener('start', () => toolsBtn.classList.add('recording'));
-        recognition.addEventListener('end', () => toolsBtn.classList.remove('recording'));
+        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
+        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
         recognition.addEventListener('result', ev => {
           input.value = ev.results[0][0].transcript;
         });
-        toolsBtn.addEventListener('click', () => recognition.start());
+        micBtn.addEventListener('click', () => recognition.start());
+      } else {
+        micBtn.disabled = true;
+        micBtn.title = 'Spracherkennung nicht unterstützt';
       }
 
       // Nachricht senden
@@ -225,7 +273,6 @@
         const text = input.value.trim();
         if (!text) return;
         append('Du', text, 'user');
-        messages.push({ role: 'user', content: text });
         append('Bot', '…', 'bot');
         input.value = '';
 
@@ -233,13 +280,12 @@
           const res = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages })
+            body: JSON.stringify({ message: text })
           });
           const raw = await res.text();
           let reply;
           try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
-          messages.push({ role: 'assistant', content: reply });
           if (ttsToggle.checked) speak(reply);
         } catch (err) {
           updateLastBot('Fehler: ' + err.message);
@@ -270,5 +316,6 @@
       }
     });
   </script>
+
 </body>
 </html>
