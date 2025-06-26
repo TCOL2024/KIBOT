@@ -197,24 +197,6 @@
         }
       });
 
-      // Speech-to-Text
-      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRec) {
-        const recognition = new SpeechRec();
-        recognition.lang = 'de-DE';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.addEventListener('start', () => micBtn.classList.add('recording'));
-        recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
-        recognition.addEventListener('result', ev => {
-          input.value = ev.results[0][0].transcript;
-        });
-        micBtn.addEventListener('click', () => recognition.start());
-      } else {
-        micBtn.disabled = true;
-        micBtn.title = 'Spracherkennung nicht unterstützt';
-      }
-
       // Nachricht senden
       async function send() {
         const text = input.value.trim();
@@ -238,9 +220,15 @@
           updateLastBot('Fehler: ' + err.message);
         }
       }
-
+      
+      // Enter key zum Senden
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        }
+      });
       sendBtn.addEventListener('click', send);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 
       // Hilfsfunktionen
       function append(who, msg, cls) {
