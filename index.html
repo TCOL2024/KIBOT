@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="ChatBot" />
 
-  <!-- Icons & Schriftarten -->
+  <!-- Icons & Inter-Schrift -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -20,59 +20,61 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
     rel="stylesheet"
   />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Segoe+Script&family=Comic+Sans+MS&display=swap"
-    rel="stylesheet"
-  />
 
   <style>
-    /* Reset & Global */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: 'Inter', sans-serif; }
     body { display: flex; background: #f7f7f8; color: #24292e; overflow: hidden; }
 
     /* Modal-Overlay & Card */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,38,90,0.45);
-      z-index: 3000; display: flex; align-items: center; justify-content: center;
+      position: fixed; inset: 0;
+      background: rgba(0,38,90,0.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 3000;
     }
     .modal-card {
-      background: #fff; border-radius: 16px; max-width: 500px; width: 90vw;
-      box-shadow: 0 8px 32px rgba(0,70,160,0.13); overflow: hidden;
+      background: #fff; border-radius: 16px;
+      width: 90vw; max-width: 500px;
+      box-shadow: 0 8px 32px rgba(0,70,160,0.13);
       border: 1.5px solid #0059b3;
+      overflow: hidden;
     }
     .modal-head {
-      background: #0059b3; color: #fff; padding: 20px 26px;
-      display: flex; align-items: center; font-size: 1.12rem; font-weight: 600;
+      background: #0059b3; color: #fff;
+      padding: 20px 26px; display: flex; align-items: center;
+      font-size: 1.12rem; font-weight: 600;
     }
-    .modal-head .fa-lock,
-    .modal-head .fa-bullhorn { margin-right: 12px; font-size: 1.2rem; }
-    /* kleinerer Text + Scroll */
+    .modal-head .fa-lock { margin-right: 12px; font-size: 1.2rem; }
     .modal-content {
-      padding: 16px 22px; font-size: 0.9rem; color: #1c273a;
-      line-height: 1.4; max-height: 60vh; overflow-y: auto;
+      padding: 16px 22px; font-size: 0.9rem;
+      color: #1c273a; line-height: 1.4;
+      max-height: 60vh; overflow-y: auto;
     }
     .modal-content ul { margin: 12px 0 0 18px; }
     .modal-content li { margin-bottom: 0.5rem; }
     .modal-footer {
-      display: flex; justify-content: flex-end; gap: 14px;
-      padding: 0 22px 18px;
+      display: flex; justify-content: flex-end;
+      gap: 14px; padding: 0 22px 18px;
     }
     .modal-btn {
-      padding: 10px 24px; border-radius: 20px; border: none;
-      font-size: 1rem; font-weight: 600; cursor: pointer;
+      padding: 10px 24px; border: none;
+      border-radius: 20px; font-size: 1rem;
+      font-weight: 600; cursor: pointer;
       box-shadow: 0 1px 5px rgba(0,89,179,0.06);
       transition: background .14s, color .12s;
     }
     .modal-btn.accept { background: #0059b3; color: #fff; }
     .modal-btn.accept:hover { background: #003974; }
     .modal-btn.decline {
-      background: #f3f4f6; color: #0059b3; border: 1px solid #c7d5ea;
+      background: #f3f4f6; color: #0059b3;
+      border: 1px solid #c7d5ea;
     }
     .modal-btn.decline:hover { background: #eaf1fa; color: #003974; }
 
-    /* Haupt-Interface (versteckt) */
+    /* Hauptinterface versteckt bis ok */
     #mainContainer { display: none; width: 100%; height: 100%; }
+
     .container { display: flex; width: 100%; height: 100%; }
     .comic {
       flex: 0 0 300px; background: #fff;
@@ -86,21 +88,23 @@
       font-size: 1.5rem; color: #333;
     }
     .chat-area {
-      position: relative; flex: 1; display: flex; flex-direction: column;
+      position: relative; flex: 1;
+      display: flex; flex-direction: column;
     }
     .chat-area header {
       padding: 1rem 1.5rem; font-size: 1.25rem; font-weight: 500;
       background: #fff; border-bottom: 1px solid #e1e4e8;
     }
 
-    /* Steuerungs-Icons */
+    /* Controls oben rechts */
     .chat-controls {
       position: absolute; top: 1rem; right: 1.5rem;
       display: flex; gap: .5rem; z-index: 5;
     }
     .control-btn {
-      background: rgba(255,255,255,0.8); border: 1px solid #e1e4e8;
-      border-radius: .5rem; width: 2.3rem; height: 2.3rem;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid #e1e4e8; border-radius: .5rem;
+      width: 2.3rem; height: 2.3rem;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; color: #57606a; cursor: pointer;
       transition: background .2s, color .2s;
@@ -109,34 +113,37 @@
 
     /* Chatfenster */
     #chat {
-      flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
+      flex: 1; overflow-y: auto;
+      padding: 1rem 1.5rem;
       display: flex; flex-direction: column; gap: 1rem;
       background: #f7f7f8;
     }
     .message {
-      max-width: 75%; padding: .75rem 1rem; border-radius: 1rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1); line-height: 1.5;
+      max-width: 75%; padding: .75rem 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      line-height: 1.5;
     }
     .bot { align-self: flex-start; background: #fff; color: #24292e; }
     .user { align-self: flex-end; background: #0969da; color: #fff; }
 
-    /* Input-Bar */
+    /* Inputbar */
     .input-bar {
       display: flex; align-items: center;
       padding: .5rem 1rem calc(env(safe-area-inset-bottom)+.5rem);
       background: #fff; border-top: 1px solid #e1e4e8;
     }
     .input-bar button {
-      background: none; border: none; font-size: 1.5rem;
-      cursor: pointer; color: #57606a; margin: 0 .25rem;
-      padding: .75rem;
+      background: none; border: none;
+      font-size: 1.5rem; cursor: pointer;
+      color: #57606a; margin: 0 .25rem; padding: .75rem;
     }
     .input-bar button:hover { color: #24292e; }
     #q {
       flex: 1; border: none; outline: none;
       background: #f0f4f8; border-radius: .5rem;
-      padding: 1rem; margin: 0 .5rem; font-size: 1rem;
-      line-height: 1.4;
+      padding: 1rem; margin: 0 .5rem;
+      font-size: 1rem; line-height: 1.4;
     }
     .recording { color: #d00!important; }
 
@@ -147,9 +154,8 @@
     }
   </style>
 </head>
-
 <body>
-  <!-- 1) Datenschutzhinweis -->
+  <!-- Datenschutzhinweis -->
   <div class="modal-overlay" id="privacy-modal">
     <div class="modal-card">
       <div class="modal-head"><i class="fa-solid fa-lock"></i>Datenschutzhinweis</div>
@@ -163,41 +169,12 @@
       </div>
       <div class="modal-footer">
         <button class="modal-btn accept" id="acceptPrivacy">Zustimmen</button>
-        <button class="modal-btn decline" onclick="window.location.reload()">Ablehnen</button>
+        <button class="modal-btn decline" onclick="location.reload()">Ablehnen</button>
       </div>
     </div>
   </div>
 
-  <!-- 2) Wichtige Hinweise -->
-  <div class="modal-overlay" id="usage-modal" style="display:none;">
-    <div class="modal-card">
-      <div class="modal-head"><i class="fa-solid fa-bullhorn"></i>Wichtige Hinweise zur Bot-Nutzung</div>
-      <div class="modal-content">
-        <p>Bitte lesen Sie diese Hinweise sorgfältig und bestätigen Sie, bevor Sie fortfahren.</p>
-        <ul>
-          <li><strong>Automatisierte Antworten:</strong> Alle Antworten werden von KI generiert.</li>
-          <li><strong>Keine Garantie:</strong> Inhalte können unvollständig oder fehlerhaft sein.</li>
-          <li><strong>Kein Ersatz für Beratung:</strong>
-            <ul>
-              <li>Rechtsberatung</li>
-              <li>Medizinische Beratung</li>
-              <li>Steuerberatung</li>
-              <li>Finanzberatung</li>
-              <li>Andere fachliche Beratungen</li>
-            </ul>
-          </li>
-          <li><strong>Haftung ausgeschlossen:</strong> Für Schäden wird keine Haftung übernommen.</li>
-          <li><strong>Eigenverantwortung:</strong> Sie bestätigen, dass Sie alle Antworten kritisch prüfen.</li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn accept" id="acceptUsage">Zustimmen</button>
-        <button class="modal-btn decline" onclick="window.location.reload()">Ablehnen</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Haupt-Interface -->
+  <!-- Hauptinterace -->
   <div id="mainContainer">
     <div class="container">
       <div class="comic">
@@ -206,20 +183,12 @@
       </div>
       <div class="chat-area">
         <header>Linda. Deine persönliche Assistentin in der Proximus.</header>
-
-        <!-- Icons -->
         <div class="chat-controls">
           <button id="btnHistory" class="control-btn" title="Chatverlauf"><i class="fa-solid fa-list"></i></button>
           <button id="btnNew" class="control-btn" title="Neuer Chat"><i class="fa-solid fa-plus"></i></button>
           <button id="btnDel" class="control-btn" title="Chat löschen"><i class="fa-solid fa-trash"></i></button>
         </div>
-
-        <!-- Chatfenster -->
-        <div id="chat">
-          <div class="message bot"><strong>Linda:</strong><br>Wie kann ich dir heute helfen?</div>
-        </div>
-
-        <!-- Eingabezeile -->
+        <div id="chat"></div>
         <div class="input-bar">
           <button id="tools-btn" title="Tools">⚙️</button>
           <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off" />
@@ -230,106 +199,127 @@
     </div>
   </div>
 
+  <!-- History-Modal -->
+  <div class="modal-overlay" id="history-modal" style="display:none; z-index:2000;">
+    <div class="modal-card" style="max-width:600px;">
+      <div class="modal-head"><i class="fa-solid fa-list"></i>Chatverlauf</div>
+      <div class="modal-content" id="history-content"></div>
+      <div class="modal-footer">
+        <button class="modal-btn accept" onclick="historyModal.hide()">Schließen</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // Schritt 1: Datenschutzhinweis
-    document.getElementById('acceptPrivacy').onclick = () => {
-      document.getElementById('privacy-modal').style.display = 'none';
-      document.getElementById('usage-modal').style.display = 'flex';
-    };
-    // Schritt 2: Usage-Hinweise
-    document.getElementById('acceptUsage').onclick = () => {
-      document.getElementById('usage-modal').style.display = 'none';
-      document.getElementById('mainContainer').style.display = 'flex';
-    };
+    // Initiale Nachricht
+    const initialMsg = { role:'assistant', content:'Hallo! Wie kann ich Sie im Bereich Personalmanagement, Ausbildung oder Prüfungsvorbereitung unterstützen?' };
+    let messages = [ initialMsg ];
 
-    // Speech Recognition
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRec) {
-      const recognition = new SpeechRec();
-      recognition.lang = 'de-DE';
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.addEventListener('start', () => document.getElementById('mic-btn').classList.add('recording'));
-      recognition.addEventListener('end', () => document.getElementById('mic-btn').classList.remove('recording'));
-      recognition.addEventListener('result', ev => document.getElementById('q').value = ev.results[0][0].transcript);
-      document.getElementById('mic-btn').addEventListener('click', () => recognition.start());
-    } else {
-      document.getElementById('mic-btn').disabled = true;
-    }
+    // Helpers für Modals
+    const privacyModal = document.getElementById('privacy-modal');
+    const historyModal = document.getElementById('history-modal');
+    function showHistoryModal(){ historyModal.style.display='flex'; }
+    function hideHistoryModal(){ historyModal.style.display='none'; }
 
-    // Chat-Logik mit question/history-Format
+    // Anzeige-Funktionen
     const chatEl = document.getElementById('chat');
-    let messages = [{ role:'assistant', content:'Wie kann ich dir heute helfen?' }];
-
-    function append(role, text, cls) {
-      const el = document.createElement('div');
-      el.className = `message ${cls}`;
-      el.innerHTML = `<strong>${role==='assistant'?'Linda':'Du'}:</strong><br>` + marked.parse(text);
-      chatEl.appendChild(el);
+    function renderMessages(){
+      chatEl.innerHTML = '';
+      for(const m of messages){
+        const div = document.createElement('div');
+        div.className = 'message ' + (m.role==='assistant'?'bot':'user');
+        div.innerHTML = `<strong>${m.role==='assistant'?'Linda':'Du'}:</strong><br>${marked.parse(m.content)}`;
+        chatEl.appendChild(div);
+      }
       chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    async function send() {
-      const input = document.getElementById('q');
-      const text = input.value.trim();
-      if (!text) return;
+    // Modal-Logik
+    document.getElementById('acceptPrivacy').onclick = () => {
+      privacyModal.style.display='none';
+      document.getElementById('mainContainer').style.display='flex';
+      renderMessages();
+    };
 
-      // Lokale Anzeige
-      append('user', text, 'user');
-      messages.push({ role:'user', content:text });
-      append('assistant', '…', 'bot');
-      input.value = '';
-
-      // History aus #chat erzeugen
-      const history = Array.from(chatEl.querySelectorAll('.message')).map(el => ({
-        role: el.classList.contains('bot') ? 'assistant' : 'user',
-        content: el.innerText.replace(/^Linda:|^Du:/,'').trim()
-      }));
-
-      try {
-        const res = await fetch('/.netlify/functions/webhook-proxy', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ question: text, history })
-        });
-        const raw = await res.text();
-        let reply;
-        try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
-
-        const bots = chatEl.querySelectorAll('.message.bot');
-        bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>` + marked.parse(reply);
-        messages.push({ role:'assistant', content:reply });
-      } catch (err) {
-        const bots = chatEl.querySelectorAll('.message.bot');
-        bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>Fehler: ${err.message}`;
-      }
+    // SpeechRecognition
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(SpeechRec){
+      const rec = new SpeechRec();
+      rec.lang='de-DE'; rec.interimResults=false; rec.maxAlternatives=1;
+      rec.onstart = ()=> document.getElementById('mic-btn').classList.add('recording');
+      rec.onend   = ()=> document.getElementById('mic-btn').classList.remove('recording');
+      rec.onresult= e=> document.getElementById('q').value = e.results[0][0].transcript;
+      document.getElementById('mic-btn').onclick = ()=> rec.start();
+    } else {
+      document.getElementById('mic-btn').disabled=true;
     }
 
-    document.getElementById('send-btn').addEventListener('click', send);
-    document.getElementById('q').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        send();
-      }
-    });
+    // send(): question/history-Format für Make
+    async function send(){
+      const inp = document.getElementById('q');
+      const text = inp.value.trim();
+      if(!text) return;
+      messages.push({role:'user', content: text});
+      renderMessages();
+      inp.value='';
 
-    // Chat-Steuerung
-    document.getElementById('btnHistory').onclick = () => {
-      alert(messages.map(m => `${m.role==='assistant'?'Linda':'Du'}: ${m.content}`).join('\n\n'));
+      messages.push({role:'assistant', content:'…'});
+      renderMessages();
+
+      // Sende
+      const history = messages.map(m=>({role:m.role, content:m.content}));
+      try{
+        const res = await fetch('/.netlify/functions/webhook-proxy', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({question: text, history})
+        });
+        const raw = await res.text();
+        const reply = JSON.parse(raw).reply||raw;
+        // Ersetze das "…"
+        messages = messages.map(m=> m.content==='…'&&m.role==='assistant' ? {role:'assistant',content:reply} : m);
+      }catch(e){
+        messages = messages.map(m=> m.content==='…'&&m.role==='assistant'
+          ? {role:'assistant', content:'Fehler: '+e.message}
+          : m);
+      }
+      renderMessages();
+    }
+    document.getElementById('send-btn').onclick = send;
+    document.getElementById('q').onkeydown = e=>{
+      if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }
     };
-    document.getElementById('btnNew').onclick = () => {
-      if (confirm('Neuen Chat starten?')) {
-        chatEl.innerHTML = '';
-        messages = [];
+
+    // Chat-Verlauf anzeigen
+    document.getElementById('btnHistory').onclick = ()=>{
+      const hc = document.getElementById('history-content');
+      hc.innerHTML = messages.map(m=>
+        `<p><strong>${m.role==='assistant'?'Linda':'Du'}:</strong> ${m.content}</p>`
+      ).join('');
+      showHistoryModal();
+    };
+    document.querySelector('#history-modal .modal-footer .accept')
+      .onclick = hideHistoryModal;
+
+    // Neuer Chat
+    document.getElementById('btnNew').onclick = ()=>{
+      if(confirm('Neuen Chat starten?')){
+        messages = [ initialMsg ];
+        renderMessages();
       }
     };
-    document.getElementById('btnDel').onclick = () => {
-      if (confirm('Diesen Chat wirklich löschen?')) {
-        chatEl.innerHTML = '';
+
+    // Chat löschen
+    document.getElementById('btnDel').onclick = ()=>{
+      if(confirm('Diesen Chat wirklich löschen?')){
         messages = [];
+        renderMessages();
       }
     };
+
+    // Zeige Datenschutzmodal initial
+    privacyModal.style.display='flex';
   </script>
 </body>
 </html>
