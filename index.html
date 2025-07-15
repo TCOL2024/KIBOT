@@ -31,7 +31,7 @@
     html, body { height: 100%; font-family: 'Inter', sans-serif; }
     body { display: flex; background: #f7f7f8; color: #24292e; overflow: hidden; }
 
-    /* Modal-Overlay & Card (gültig für beide) */
+    /* Modal-Overlay & Card */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,38,90,0.45);
       z-index: 3000; display: flex; align-items: center; justify-content: center;
@@ -47,18 +47,20 @@
     }
     .modal-head .fa-lock,
     .modal-head .fa-bullhorn { margin-right: 12px; font-size: 1.2rem; }
+    /* kleinerer Text + Scroll */
     .modal-content {
-      padding: 22px; font-size: 1.03rem; color: #1c273a;
-      line-height: 1.5;
+      padding: 16px 22px; font-size: 0.9rem; color: #1c273a;
+      line-height: 1.4; max-height: 60vh; overflow-y: auto;
     }
-    .modal-content ul { margin: 14px 0 0 18px; }
+    .modal-content ul { margin: 12px 0 0 18px; }
+    .modal-content li { margin-bottom: 0.5rem; }
     .modal-footer {
       display: flex; justify-content: flex-end; gap: 14px;
       padding: 0 22px 18px;
     }
     .modal-btn {
-      padding: 11px 28px; border-radius: 20px; border: none;
-      font-size: 1.06rem; font-weight: 600; cursor: pointer;
+      padding: 10px 24px; border-radius: 20px; border: none;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
       box-shadow: 0 1px 5px rgba(0,89,179,0.06);
       transition: background .14s, color .12s;
     }
@@ -69,7 +71,7 @@
     }
     .modal-btn.decline:hover { background: #eaf1fa; color: #003974; }
 
-    /* Haupt-Interface (versteckt bis beide Zustimmungen) */
+    /* Haupt-Interface (versteckt) */
     #mainContainer { display: none; width: 100%; height: 100%; }
     .container { display: flex; width: 100%; height: 100%; }
     .comic {
@@ -91,7 +93,7 @@
       background: #fff; border-bottom: 1px solid #e1e4e8;
     }
 
-    /* Steuerungs-Icons oben rechts */
+    /* Steuerungs-Icons */
     .chat-controls {
       position: absolute; top: 1rem; right: 1.5rem;
       display: flex; gap: .5rem; z-index: 5;
@@ -152,12 +154,11 @@
     <div class="modal-card">
       <div class="modal-head"><i class="fa-solid fa-lock"></i>Datenschutzhinweis</div>
       <div class="modal-content">
-        <p>Um diesen Chatbot nutzen zu können, ist deine Zustimmung zur Datenschutzerklärung erforderlich:</p>
+        <p>Um diesen Chatbot nutzen zu können, ist deine Zustimmung erforderlich:</p>
         <ul>
-          <li>Deine Eingaben werden an externe KI-Dienstleister (OpenAI, USA) und Make (EU) übermittelt.</li>
-          <li>Daten werden für die Antwortgenerierung verarbeitet und können außerhalb der EU gespeichert werden.</li>
-          <li>Bitte gib <b>keine personenbezogenen oder sensiblen Daten</b> ein!</li>
-          <li>Mehr: <a href="https://openai.com/policies/privacy-policy" target="_blank">OpenAI</a>, <a href="https://www.make.com/en/privacy-policy" target="_blank">Make.com</a>.</li>
+          <li>Eingaben werden an OpenAI (USA) und Make (EU) übermittelt.</li>
+          <li>Daten können außerhalb der EU gespeichert werden.</li>
+          <li>Keine sensiblen Daten eingeben!</li>
         </ul>
       </div>
       <div class="modal-footer">
@@ -167,41 +168,26 @@
     </div>
   </div>
 
-  <!-- 2) Wichtige Hinweise zur Bot-Nutzung -->
+  <!-- 2) Wichtige Hinweise -->
   <div class="modal-overlay" id="usage-modal" style="display:none;">
     <div class="modal-card">
       <div class="modal-head"><i class="fa-solid fa-bullhorn"></i>Wichtige Hinweise zur Bot-Nutzung</div>
       <div class="modal-content">
-        <p>Bitte lesen Sie diese Hinweise sorgfältig durch und bestätigen Sie diese, bevor Sie den Bot verwenden.</p>
+        <p>Bitte lesen Sie diese Hinweise sorgfältig und bestätigen Sie, bevor Sie fortfahren.</p>
         <ul>
-          <li><strong>Automatisierte Antworten:</strong><br>
-            Sie interagieren mit einem automatisierten Bot-System. Alle Antworten werden von künstlicher Intelligenz generiert, nicht von einem Menschen.
-          </li>
-          <li><strong>Keine Gewähr für Richtigkeit:</strong><br>
-            Die vom Bot bereitgestellten Informationen können unvollständig, veraltet oder fehlerhaft sein. Jede Antwort muss von Ihnen eigenständig überprüft und validiert werden.
-          </li>
-          <li><strong>Kein Ersatz für professionelle Beratung:</strong><br>
-            Der Bot ersetzt keine professionelle Beratung, insbesondere keine:
+          <li><strong>Automatisierte Antworten:</strong> Alle Antworten werden von KI generiert.</li>
+          <li><strong>Keine Garantie:</strong> Inhalte können unvollständig oder fehlerhaft sein.</li>
+          <li><strong>Kein Ersatz für Beratung:</strong>
             <ul>
               <li>Rechtsberatung</li>
               <li>Medizinische Beratung</li>
               <li>Steuerberatung</li>
               <li>Finanzberatung</li>
-              <li>Andere fachspezifische Beratungsleistungen</li>
-            </ul>
-            Wenden Sie sich für rechtliche, medizinische oder andere fachliche Angelegenheiten immer an entsprechende Fachkräfte.
-          </li>
-          <li><strong>Haftungsausschluss:</strong><br>
-            Jegliche Haftung für Schäden, die durch die Nutzung des Bots oder durch das Vertrauen auf die bereitgestellten Informationen entstehen, wird vollständig ausgeschlossen.
-          </li>
-          <li><strong>Eigenverantwortung:</strong><br>
-            Sie nutzen den Bot auf eigene Verantwortung und bestätigen, dass Sie:
-            <ul>
-              <li>Die Grenzen des Systems verstehen</li>
-              <li>Alle Antworten kritisch hinterfragen werden</li>
-              <li>Bei wichtigen Entscheidungen zusätzliche Quellen konsultieren</li>
+              <li>Andere fachliche Beratungen</li>
             </ul>
           </li>
+          <li><strong>Haftung ausgeschlossen:</strong> Für Schäden wird keine Haftung übernommen.</li>
+          <li><strong>Eigenverantwortung:</strong> Sie bestätigen, dass Sie alle Antworten kritisch prüfen.</li>
         </ul>
       </div>
       <div class="modal-footer">
@@ -221,7 +207,7 @@
       <div class="chat-area">
         <header>Linda. Deine persönliche Assistentin in der Proximus.</header>
 
-        <!-- Steuerungs-Icons -->
+        <!-- Icons -->
         <div class="chat-controls">
           <button id="btnHistory" class="control-btn" title="Chatverlauf"><i class="fa-solid fa-list"></i></button>
           <button id="btnNew" class="control-btn" title="Neuer Chat"><i class="fa-solid fa-plus"></i></button>
@@ -246,13 +232,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // 1) Datenschutzhinweis: beim Zustimmen weiter zum Usage-Modal
+    // Schritt 1: Datenschutzhinweis
     document.getElementById('acceptPrivacy').onclick = () => {
       document.getElementById('privacy-modal').style.display = 'none';
       document.getElementById('usage-modal').style.display = 'flex';
     };
-
-    // 2) Wichtige Hinweise: beim Zustimmen endlich das Chat-Interface zeigen
+    // Schritt 2: Usage-Hinweise
     document.getElementById('acceptUsage').onclick = () => {
       document.getElementById('usage-modal').style.display = 'none';
       document.getElementById('mainContainer').style.display = 'flex';
@@ -273,7 +258,7 @@
       document.getElementById('mic-btn').disabled = true;
     }
 
-    // Chat-Logik mit Netlify-Webhook
+    // Chat-Logik mit question/history-Format
     const chatEl = document.getElementById('chat');
     let messages = [{ role:'assistant', content:'Wie kann ich dir heute helfen?' }];
 
@@ -286,24 +271,35 @@
     }
 
     async function send() {
-      const text = document.getElementById('q').value.trim();
+      const input = document.getElementById('q');
+      const text = input.value.trim();
       if (!text) return;
+
+      // Lokale Anzeige
       append('user', text, 'user');
-      messages.push({ role:'user', content: text });
+      messages.push({ role:'user', content:text });
       append('assistant', '…', 'bot');
-      document.getElementById('q').value = '';
+      input.value = '';
+
+      // History aus #chat erzeugen
+      const history = Array.from(chatEl.querySelectorAll('.message')).map(el => ({
+        role: el.classList.contains('bot') ? 'assistant' : 'user',
+        content: el.innerText.replace(/^Linda:|^Du:/,'').trim()
+      }));
+
       try {
         const res = await fetch('/.netlify/functions/webhook-proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages })
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ question: text, history })
         });
         const raw = await res.text();
         let reply;
         try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
+
         const bots = chatEl.querySelectorAll('.message.bot');
         bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>` + marked.parse(reply);
-        messages.push({ role:'assistant', content: reply });
+        messages.push({ role:'assistant', content:reply });
       } catch (err) {
         const bots = chatEl.querySelectorAll('.message.bot');
         bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>Fehler: ${err.message}`;
@@ -318,12 +314,9 @@
       }
     });
 
-    // Chat-Steuerung: Verlauf, Neu, Löschen
+    // Chat-Steuerung
     document.getElementById('btnHistory').onclick = () => {
-      alert(
-        messages.map(m => `${m.role==='assistant'?'Linda':'Du'}: ${m.content}`)
-                .join('\n\n')
-      );
+      alert(messages.map(m => `${m.role==='assistant'?'Linda':'Du'}: ${m.content}`).join('\n\n'));
     };
     document.getElementById('btnNew').onclick = () => {
       if (confirm('Neuen Chat starten?')) {
