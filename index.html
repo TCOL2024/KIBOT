@@ -45,7 +45,8 @@
       padding: 20px 26px; display: flex; align-items: center;
       font-size: 1.12rem; font-weight: 600;
     }
-    .modal-head .fa-lock { margin-right: 12px; font-size: 1.2rem; }
+    .modal-head .fa-lock,
+    .modal-head .fa-bullhorn { margin-right: 12px; font-size: 1.2rem; }
     .modal-content {
       padding: 16px 22px; font-size: 0.9rem;
       color: #1c273a; line-height: 1.4;
@@ -72,7 +73,7 @@
     }
     .modal-btn.decline:hover { background: #eaf1fa; color: #003974; }
 
-    /* Hauptinterface versteckt bis ok */
+    /* Hauptinterface versteckt bis Modals bestätigt */
     #mainContainer { display: none; width: 100%; height: 100%; }
 
     .container { display: flex; width: 100%; height: 100%; }
@@ -155,7 +156,7 @@
   </style>
 </head>
 <body>
-  <!-- Datenschutzhinweis -->
+  <!-- 1) Datenschutzhinweis -->
   <div class="modal-overlay" id="privacy-modal">
     <div class="modal-card">
       <div class="modal-head"><i class="fa-solid fa-lock"></i>Datenschutzhinweis</div>
@@ -174,7 +175,36 @@
     </div>
   </div>
 
-  <!-- Hauptinterace -->
+  <!-- 2) Wichtige Hinweise zur Bot-Nutzung -->
+  <div class="modal-overlay" id="usage-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head"><i class="fa-solid fa-bullhorn"></i>Wichtige Hinweise zur Bot-Nutzung</div>
+      <div class="modal-content">
+        <p>Bitte lesen Sie diese Hinweise sorgfältig durch und bestätigen Sie, bevor Sie fortfahren:</p>
+        <ul>
+          <li><strong>Automatisierte Antworten:</strong> Alle Antworten werden von KI generiert.</li>
+          <li><strong>Keine Gewähr für Richtigkeit:</strong> Informationen können unvollständig oder fehlerhaft sein.</li>
+          <li><strong>Kein Ersatz für Beratung:</strong>
+            <ul>
+              <li>Rechtsberatung</li>
+              <li>Medizinische Beratung</li>
+              <li>Steuerberatung</li>
+              <li>Finanzberatung</li>
+              <li>Andere fachliche Beratungen</li>
+            </ul>
+          </li>
+          <li><strong>Haftungsausschluss:</strong> Für Schäden wird keine Haftung übernommen.</li>
+          <li><strong>Eigenverantwortung:</strong> Sie bestätigen, dass Sie alle Antworten kritisch prüfen.</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn accept" id="acceptUsage">Zustimmen</button>
+        <button class="modal-btn decline" onclick="location.reload()">Ablehnen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hauptinterface -->
   <div id="mainContainer">
     <div class="container">
       <div class="comic">
@@ -200,31 +230,33 @@
   </div>
 
   <!-- History-Modal -->
-  <div class="modal-overlay" id="history-modal" style="display:none; z-index:2000;">
+  <div class="modal-overlay" id="history-modal" style="display:none; z-index:2000;" onclick="if(event.target===this) hideHistoryModal()">
     <div class="modal-card" style="max-width:600px;">
       <div class="modal-head"><i class="fa-solid fa-list"></i>Chatverlauf</div>
       <div class="modal-content" id="history-content"></div>
       <div class="modal-footer">
-        <button class="modal-btn accept" onclick="historyModal.hide()">Schließen</button>
+        <button class="modal-btn accept" id="history-close">Schließen</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // Initiale Nachricht
-    const initialMsg = { role:'assistant', content:'Hallo! Wie kann ich Sie im Bereich Personalmanagement, Ausbildung oder Prüfungsvorbereitung unterstützen?' };
+    const privacyModal  = document.getElementById('privacy-modal');
+    const usageModal    = document.getElementById('usage-modal');
+    const mainContainer = document.getElementById('mainContainer');
+    const historyModal  = document.getElementById('history-modal');
+
+    // Anfangsnachricht
+    const initialMsg = {
+      role: 'assistant',
+      content: 'Hallo! Wie kann ich Sie im Bereich Personalmanagement, Ausbildung oder Prüfungsvorbereitung unterstützen?'
+    };
     let messages = [ initialMsg ];
 
-    // Helpers für Modals
-    const privacyModal = document.getElementById('privacy-modal');
-    const historyModal = document.getElementById('history-modal');
-    function showHistoryModal(){ historyModal.style.display='flex'; }
-    function hideHistoryModal(){ historyModal.style.display='none'; }
-
-    // Anzeige-Funktionen
-    const chatEl = document.getElementById('chat');
+    // Nachrichten rendern
     function renderMessages(){
+      const chatEl = document.getElementById('chat');
       chatEl.innerHTML = '';
       for(const m of messages){
         const div = document.createElement('div');
@@ -235,10 +267,14 @@
       chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    // Modal-Logik
+    // Modals steuern
     document.getElementById('acceptPrivacy').onclick = () => {
-      privacyModal.style.display='none';
-      document.getElementById('mainContainer').style.display='flex';
+      privacyModal.style.display = 'none';
+      usageModal.style.display   = 'flex';
+    };
+    document.getElementById('acceptUsage').onclick = () => {
+      usageModal.style.display   = 'none';
+      mainContainer.style.display= 'flex';
       renderMessages();
     };
 
@@ -252,60 +288,67 @@
       rec.onresult= e=> document.getElementById('q').value = e.results[0][0].transcript;
       document.getElementById('mic-btn').onclick = ()=> rec.start();
     } else {
-      document.getElementById('mic-btn').disabled=true;
+      document.getElementById('mic-btn').disabled = true;
     }
 
-    // send(): question/history-Format für Make
+    // send() mit JSON-Fallback und question/history-Format
     async function send(){
       const inp = document.getElementById('q');
-      const text = inp.value.trim();
+      const text= inp.value.trim();
       if(!text) return;
-      messages.push({role:'user', content: text});
+      messages.push({role:'user',content:text});
       renderMessages();
       inp.value='';
-
-      messages.push({role:'assistant', content:'…'});
+      messages.push({role:'assistant',content:'…'});
       renderMessages();
 
-      // Sende
-      const history = messages.map(m=>({role:m.role, content:m.content}));
-      try{
-        const res = await fetch('/.netlify/functions/webhook-proxy', {
+      const history = messages.map(m=>({role:m.role,content:m.content}));
+      try {
+        const res=await fetch('/.netlify/functions/webhook-proxy',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({question: text, history})
+          body:JSON.stringify({question:text,history})
         });
-        const raw = await res.text();
-        const reply = JSON.parse(raw).reply||raw;
-        // Ersetze das "…"
-        messages = messages.map(m=> m.content==='…'&&m.role==='assistant' ? {role:'assistant',content:reply} : m);
-      }catch(e){
-        messages = messages.map(m=> m.content==='…'&&m.role==='assistant'
-          ? {role:'assistant', content:'Fehler: '+e.message}
-          : m);
+        const raw=await res.text();
+        let reply;
+        try{ reply=JSON.parse(raw).reply||raw; } catch { reply=raw; }
+        messages=messages.map(m=>
+          m.role==='assistant'&&m.content==='…'
+            ? {role:'assistant',content:reply}
+            : m
+        );
+      } catch(err){
+        messages=messages.map(m=>
+          m.role==='assistant'&&m.content==='…'
+            ? {role:'assistant',content:'Fehler: '+err.message}
+            : m
+        );
       }
       renderMessages();
     }
     document.getElementById('send-btn').onclick = send;
-    document.getElementById('q').onkeydown = e=>{
+    document.getElementById('q').addEventListener('keydown', e=>{
       if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }
-    };
+    });
 
-    // Chat-Verlauf anzeigen
-    document.getElementById('btnHistory').onclick = ()=>{
-      const hc = document.getElementById('history-content');
-      hc.innerHTML = messages.map(m=>
-        `<p><strong>${m.role==='assistant'?'Linda':'Du'}:</strong> ${m.content}</p>`
-      ).join('');
-      showHistoryModal();
-    };
-    document.querySelector('#history-modal .modal-footer .accept')
-      .onclick = hideHistoryModal;
+    // Verlauf anzeigen / schließen
+    function showHistoryModal(){
+      document.getElementById('history-content').innerHTML =
+        messages.map(m=>
+          `<p><strong>${m.role==='assistant'?'Linda':'Du'}:</strong> ${m.content}</p>`
+        ).join('');
+      historyModal.style.display='flex';
+    }
+    function hideHistoryModal(){
+      historyModal.style.display='none';
+    }
+    document.getElementById('btnHistory').onclick = showHistoryModal;
+    document.getElementById('history-close').onclick = hideHistoryModal;
 
     // Neuer Chat
     document.getElementById('btnNew').onclick = ()=>{
       if(confirm('Neuen Chat starten?')){
-        messages = [ initialMsg ];
+        messages=[ initialMsg ];
         renderMessages();
       }
     };
@@ -313,13 +356,13 @@
     // Chat löschen
     document.getElementById('btnDel').onclick = ()=>{
       if(confirm('Diesen Chat wirklich löschen?')){
-        messages = [];
+        messages=[];
         renderMessages();
       }
     };
 
-    // Zeige Datenschutzmodal initial
-    privacyModal.style.display='flex';
+    // Initial
+    privacyModal.style.display = 'flex';
   </script>
 </body>
 </html>
