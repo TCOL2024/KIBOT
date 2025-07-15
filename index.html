@@ -67,6 +67,25 @@
     /* Sessions-Modal */
     .session-item { display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid #e3eefa; cursor:pointer }
     .session-item:last-child { border:none }
+
+    /* mobile adjustments */
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .container { flex-direction: column; }
+      .comic {
+        flex: 0 0 auto;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+      }
+      .chat-area { flex: 1; }
+      .modal-card { width: 95vw; }
+      .control-btn { width: 2rem; height: 2rem; font-size: 1rem; }
+      #chat { padding: 0.5rem 1rem; }
+      .message { max-width: 90%; padding: 0.5rem 0.75rem; }
+      .input-bar { padding: 0.25rem 0.5rem calc(env(safe-area-inset-bottom)+0.25rem); }
+      #q { padding: 0.75rem; font-size: 0.9rem; margin: 0 0.25rem; }
+    }
   </style>
 </head>
 <body>
