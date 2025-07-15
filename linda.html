@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Linda – Deine persönliche Assistentin (Comic)</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    /* Reset & System Font */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       display: flex;
@@ -15,12 +14,10 @@
       background: #f7f7f8;
       color: #24292e;
     }
-    /* Gesamter Container */
     .container {
       display: flex;
       width: 100%;
     }
-    /* Bild links */
     .comic {
       flex: 0 0 300px;
       background: #fff;
@@ -43,7 +40,6 @@
       font-size: 1.5rem;
       color: #333;
     }
-    /* Chat-Bereich rechts */
     .chat-area {
       position: relative;
       flex: 1;
@@ -69,7 +65,7 @@
     .message {
       max-width: 75%;
       line-height: 1.5;
-      white-space: pre-wrap;
+      white-space: normal;
       padding: .75rem 1rem;
       border-radius: 1rem;
       box-shadow: 0 1px 2px rgba(0,0,0,0.1);
@@ -84,7 +80,6 @@
       background: #0969da;
       color: #fff;
     }
-    /* Tools-Panel */
     .tools-panel {
       position: absolute;
       bottom: 4.5rem;
@@ -107,7 +102,6 @@
       margin: 0;
       width: auto;
     }
-    /* Input-Bar (Footer) */
     .input-bar {
       display: flex;
       align-items: center;
@@ -141,7 +135,17 @@
     .recording {
       color: #d00 !important;
     }
-    /* Mobile-Optimierung */
+    .message strong { font-weight: bold; }
+    .message em { font-style: italic; }
+    .message h1, .message h2, .message h3 {
+      margin: 0.5rem 0;
+    }
+    .message ul {
+      margin: 0.5rem 0 0.5rem 1.5rem;
+    }
+    .message p {
+      margin-bottom: 0.75rem;
+    }
     @media (max-width: 600px) {
       .container {
         flex-direction: column;
@@ -154,19 +158,15 @@
   </style>
 </head>
 <body>
-
   <div class="container">
-    <!-- Bild der Dame + Name -->
     <div class="comic">
       <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda">
       <div class="comic-name">Linda</div>
     </div>
-
-    <!-- Chat-Bereich -->
     <div class="chat-area">
       <header>Linda. Deine persönliche Assistentin in der Proximus.</header>
       <div id="chat">
-        <div class="message bot">Bot: Wie kann ich dir heute helfen?</div>
+        <div class="message bot"><strong>Bot:</strong><br>Wie kann ich dir heute helfen?</div>
       </div>
       <div class="tools-panel" id="tools-panel">
         <label>
@@ -186,20 +186,18 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const webhookUrl = 'https://hook.us2.make.com/l02o8j9hhc22p0mxcstpjlm39lvg8b4t';
-      const chat      = document.getElementById('chat');
-      const input     = document.getElementById('q');
-      const toolsBtn  = document.getElementById('tools-btn');
-      const toolsPanel= document.getElementById('tools-panel');
+      const chat = document.getElementById('chat');
+      const input = document.getElementById('q');
+      const toolsBtn = document.getElementById('tools-btn');
+      const toolsPanel = document.getElementById('tools-panel');
       const ttsToggle = document.getElementById('tts-toggle');
-      const micBtn    = document.getElementById('mic-btn');
-      const sendBtn   = document.getElementById('send-btn');
+      const micBtn = document.getElementById('mic-btn');
+      const sendBtn = document.getElementById('send-btn');
 
-      // Kontext-Array initialisieren
       const messages = [
         { role: 'assistant', content: 'Wie kann ich dir heute helfen?' }
       ];
 
-      // Tools-Panel togglen
       toolsBtn.addEventListener('click', () => {
         toolsPanel.style.display = toolsPanel.style.display === 'block' ? 'none' : 'block';
       });
@@ -209,7 +207,6 @@
         }
       });
 
-      // Speech-to-Text
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRec) {
         const recognition = new SpeechRec();
@@ -227,7 +224,6 @@
         micBtn.title = 'Spracherkennung nicht unterstützt';
       }
 
-      // Nachricht senden mit vollem Kontext
       async function send() {
         const text = input.value.trim();
         if (!text) return;
@@ -246,16 +242,13 @@
           let reply;
           try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
           updateLastBot(reply);
-          // <<< HIER die Sprachausgabe einfügen >>>
-          speak(reply);
-          messages.push({ role: 'assistant', content: reply });
           if (ttsToggle.checked) speak(reply);
+          messages.push({ role: 'assistant', content: reply });
         } catch (err) {
           updateLastBot('Fehler: ' + err.message);
         }
       }
 
-      // Enter & Button Events
       input.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
@@ -264,19 +257,22 @@
       });
       sendBtn.addEventListener('click', send);
 
-      // Helper-Funktionen
       function append(who, msg, cls) {
         const el = document.createElement('div');
         el.className = `message ${cls}`;
-        el.textContent = `${who}: ${msg}`;
+        el.innerHTML = (cls === 'bot') ? `<strong>${who}:</strong><br>${marked.parse(msg)}` : `<strong>${who}:</strong><br>${msg}`;
         chat.appendChild(el);
         chat.scrollTop = chat.scrollHeight;
       }
+
       function updateLastBot(msg) {
         const bots = chat.querySelectorAll('.message.bot');
-        bots[bots.length - 1].textContent = `Bot: ${msg}`;
-        chat.scrollTop = chat.scrollHeight;
+        if (bots.length > 0) {
+          bots[bots.length - 1].innerHTML = `<strong>Bot:</strong><br>${marked.parse(msg)}`;
+          chat.scrollTop = chat.scrollHeight;
+        }
       }
+
       function speak(text) {
         if (!('speechSynthesis' in window)) return;
         const u = new SpeechSynthesisUtterance(text);
