@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Linda – Deine persönliche Assistentin (Comic)</title>
+
+  <!-- Schriftart Inter wie ChatGPT -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       display: flex;
       height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: #f7f7f8;
       color: #24292e;
     }
@@ -140,8 +144,13 @@
     .message h1, .message h2, .message h3 {
       margin: 0.5rem 0;
     }
-    .message ul {
+    .message ul,
+    .message ol {
       margin: 0.5rem 0 0.5rem 1.5rem;
+      padding-left: 1.25rem;
+    }
+    .message li {
+      margin-bottom: 0.4rem;
     }
     .message p {
       margin-bottom: 0.75rem;
@@ -160,7 +169,7 @@
 <body>
   <div class="container">
     <div class="comic">
-      <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda">
+      <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Dame Linda" />
       <div class="comic-name">Linda</div>
     </div>
     <div class="chat-area">
@@ -170,13 +179,13 @@
       </div>
       <div class="tools-panel" id="tools-panel">
         <label>
-          <input type="checkbox" id="tts-toggle">
+          <input type="checkbox" id="tts-toggle" />
           Stimmen an/aus
         </label>
       </div>
       <div class="input-bar">
         <button id="tools-btn" title="Tools">⚙️</button>
-        <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off">
+        <input id="q" type="text" placeholder="Deine Frage…" autocomplete="off" />
         <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
         <button id="send-btn" title="Senden">➤</button>
       </div>
