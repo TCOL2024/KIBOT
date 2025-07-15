@@ -269,7 +269,8 @@
       function append(who, msg, cls) {
         const el = document.createElement('div');
         el.className = `message ${cls}`;
-        el.innerHTML = (cls === 'bot') ? `<strong>${who}:</strong><br>${marked.parse(msg)}` : `<strong>${who}:</strong><br>${msg}`;
+        const sender = who === 'Bot' ? 'Linda' : who;
+el.innerHTML = `<strong>${sender}:</strong><br>` + marked.parse(msg);
         chat.appendChild(el);
         chat.scrollTop = chat.scrollHeight;
       }
@@ -277,7 +278,7 @@
       function updateLastBot(msg) {
         const bots = chat.querySelectorAll('.message.bot');
         if (bots.length > 0) {
-          bots[bots.length - 1].innerHTML = `<strong>Bot:</strong><br>${marked.parse(msg)}`;
+          bots[bots.length - 1].innerHTML = `<strong>Linda:</strong><br>${marked.parse(msg)}`;
           chat.scrollTop = chat.scrollHeight;
         }
       }
