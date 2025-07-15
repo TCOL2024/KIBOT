@@ -31,7 +31,7 @@
     html, body { height: 100%; font-family: 'Inter', sans-serif; }
     body { display: flex; background: #f7f7f8; color: #24292e; overflow: hidden; }
 
-    /* Datenschutz-/Disclaimer-Modals */
+    /* Datenschutzhinweis-Modal */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,38,90,0.45);
       z-index: 3000; display: flex; align-items: center; justify-content: center;
@@ -45,9 +45,7 @@
       background: #0059b3; color: #fff; padding: 20px 26px;
       display: flex; align-items: center; font-size: 1.12rem; font-weight: 600;
     }
-    .modal-head .fa-lock, .modal-head .fa-shield-halved {
-      margin-right: 12px; font-size: 1.2rem;
-    }
+    .modal-head .fa-lock { margin-right: 12px; font-size: 1.2rem; }
     .modal-content { padding: 22px; font-size: 1.03rem; color: #1c273a; }
     .modal-content ul { margin: 14px 0 0 18px; }
     .modal-footer {
@@ -66,7 +64,7 @@
     }
     .modal-btn.decline:hover { background: #eaf1fa; color: #003974; }
 
-    /* Haupt-Interface */
+    /* Haupt-Interface (versteckt bis Zustimmung) */
     #mainContainer { display: none; width: 100%; height: 100%; }
     .container { display: flex; width: 100%; height: 100%; }
     .comic {
@@ -76,7 +74,8 @@
     }
     .comic img { width: 100%; border-radius: .5rem; }
     .comic-name {
-      margin-top: .5rem; font-family: 'Segoe Script','Comic Sans MS',cursive;
+      margin-top: .5rem;
+      font-family: 'Segoe Script','Comic Sans MS',cursive;
       font-size: 1.5rem; color: #333;
     }
     .chat-area {
@@ -141,40 +140,23 @@
     }
   </style>
 </head>
+
 <body>
-  <!-- Datenschutz -->
+  <!-- Datenschutzhinweis -->
   <div class="modal-overlay" id="privacy-modal">
     <div class="modal-card">
       <div class="modal-head"><i class="fa-solid fa-lock"></i>Datenschutzhinweis</div>
       <div class="modal-content">
         <p>Um diesen Chatbot nutzen zu können, ist deine Zustimmung zur Datenschutzerklärung erforderlich:</p>
         <ul>
-          <li>Deine Eingaben werden an externe KI-Dienstleister (OpenAI, USA) und die Automatisierungsplattform (Make, EU) übermittelt.</li>
-          <li>Die übermittelten Daten werden für die Generierung von Antworten verarbeitet und können auf Servern außerhalb der EU gespeichert werden.</li>
+          <li>Deine Eingaben werden an externe KI-Dienstleister (OpenAI, USA) und Make (EU) übermittelt.</li>
+          <li>Daten werden für die Antwortgenerierung verarbeitet und können außerhalb der EU gespeichert werden.</li>
           <li>Bitte gib <b>keine personenbezogenen oder sensiblen Daten</b> ein!</li>
-          <li>Weitere Informationen: <a href="https://openai.com/policies/privacy-policy" target="_blank">OpenAI</a>, <a href="https://www.make.com/en/privacy-policy" target="_blank">Make.com</a>.</li>
+          <li>Mehr: <a href="https://openai.com/policies/privacy-policy" target="_blank">OpenAI</a>, <a href="https://www.make.com/en/privacy-policy" target="_blank">Make.com</a>.</li>
         </ul>
       </div>
       <div class="modal-footer">
         <button class="modal-btn accept" id="acceptPrivacy">Zustimmen</button>
-        <button class="modal-btn decline" onclick="window.location.reload()">Ablehnen</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Haftungsausschluss -->
-  <div class="modal-overlay" id="disclaimer-modal" style="display:none;">
-    <div class="modal-card">
-      <div class="modal-head"><i class="fa-solid fa-shield-halved"></i>Haftungsausschluss</div>
-      <div class="modal-content">
-        <ul>
-          <li>Die Antworten dieses Chatbots werden durch künstliche Intelligenz (KI) erzeugt.</li>
-          <li>Es besteht <b>keine Garantie auf Richtigkeit, Vollständigkeit oder Aktualität</b> der bereitgestellten Informationen.</li>
-          <li>Die Nutzung des Chatbots ersetzt keine Rechts-, Steuer- oder Fachberatung.</li>
-        </ul>
-      </div>
-      <div class="modal-footer">
-        <button class="modal-btn accept" id="acceptDisclaimer">Einverstanden</button>
         <button class="modal-btn decline" onclick="window.location.reload()">Ablehnen</button>
       </div>
     </div>
@@ -197,18 +179,7 @@
           <button id="btnDel" class="control-btn" title="Chat löschen"><i class="fa-solid fa-trash"></i></button>
         </div>
 
-        <!-- Chatverlauf-Modal -->
-        <div class="modal-overlay" id="history-modal" style="display:none; z-index:2000;">
-          <div class="modal-card" style="max-width:600px;">
-            <div class="modal-head"><i class="fa-solid fa-list"></i>Chatverlauf</div>
-            <div class="modal-content" id="history-content" style="max-height:60vh; overflow:auto;"></div>
-            <div class="modal-footer">
-              <button class="modal-btn accept" onclick="document.getElementById('history-modal').style.display='none'">Schließen</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Nachrichten -->
+        <!-- Chatfenster -->
         <div id="chat">
           <div class="message bot"><strong>Linda:</strong><br>Wie kann ich dir heute helfen?</div>
         </div>
@@ -226,29 +197,25 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // Datenschutz- & Disclaimer-Logik
+    // Wenn auf "Zustimmen" geklickt wird, Modal verschwinden lassen & Chat anzeigen
     document.getElementById('acceptPrivacy').onclick = () => {
       document.getElementById('privacy-modal').style.display = 'none';
-      document.getElementById('disclaimer-modal').style.display = 'flex';
-    };
-    document.getElementById('acceptDisclaimer').onclick = () => {
-      document.getElementById('disclaimer-modal').style.display = 'none';
       document.getElementById('mainContainer').style.display = 'flex';
     };
 
-    // Sprachsteuerung
+    // Speech Recognition
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRec) {
       const recognition = new SpeechRec();
       recognition.lang = 'de-DE';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
-      recognition.addEventListener('start', () => micBtn.classList.add('recording'));
-      recognition.addEventListener('end', () => micBtn.classList.remove('recording'));
+      recognition.addEventListener('start', () => mic-btn.classList.add('recording'));
+      recognition.addEventListener('end', () => mic-btn.classList.remove('recording'));
       recognition.addEventListener('result', ev => q.value = ev.results[0][0].transcript);
-      mic-btn.addEventListener('click', () => recognition.start());
+      document.getElementById('mic-btn').addEventListener('click', () => recognition.start());
     } else {
-      mic-btn.disabled = true;
+      document.getElementById('mic-btn').disabled = true;
     }
 
     // Chat-Logik mit Netlify-Webhook
@@ -258,18 +225,18 @@
     function append(role, text, cls) {
       const el = document.createElement('div');
       el.className = `message ${cls}`;
-      el.innerHTML = `<strong>${role==='assistant'?'Linda':'Du'}:</strong><br>`+marked.parse(text);
+      el.innerHTML = `<strong>${role==='assistant'?'Linda':'Du'}:</strong><br>` + marked.parse(text);
       chatEl.appendChild(el);
       chatEl.scrollTop = chatEl.scrollHeight;
     }
 
     async function send() {
-      const text = q.value.trim();
+      const text = document.getElementById('q').value.trim();
       if (!text) return;
-      append('user', text,'user');
+      append('user', text, 'user');
       messages.push({ role:'user', content:text });
-      append('assistant','…','bot');
-      q.value='';
+      append('assistant', '…', 'bot');
+      document.getElementById('q').value = '';
       try {
         const res = await fetch('/.netlify/functions/webhook-proxy', {
           method:'POST',
@@ -278,51 +245,43 @@
         });
         const raw = await res.text();
         let reply;
-        try { reply = JSON.parse(raw).reply||raw; } catch { reply = raw; }
+        try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
         const bots = chatEl.querySelectorAll('.message.bot');
-        bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>`+marked.parse(reply);
+        bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>` + marked.parse(reply);
         messages.push({ role:'assistant', content:reply });
-      } catch(err) {
+      } catch (err) {
         const bots = chatEl.querySelectorAll('.message.bot');
         bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>Fehler: ${err.message}`;
       }
     }
 
-    send-btn.addEventListener('click', send);
-    q.addEventListener('keydown', e => {
-      if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-    });
-
-    // Tools-Panel (TTS) und Chat-Steuerung
-    tools-btn.addEventListener('click', () => {
-      toolsPanel.style.display = toolsPanel.style.display==='block'?'none':'block';
-    });
-    document.addEventListener('click', e => {
-      if (!toolsPanel.contains(e.target) && e.target!==tools-btn) {
-        toolsPanel.style.display='none';
+    document.getElementById('send-btn').addEventListener('click', send);
+    document.getElementById('q').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        send();
       }
     });
 
+    // Chat-Steuerung: Verlauf, Neu, Löschen
     document.getElementById('btnHistory').onclick = () => {
-      const hc = document.getElementById('history-content');
-      hc.innerHTML = messages.map(m =>
-        `<p><strong>${m.role==='assistant'?'Linda':'Du'}:</strong> ${m.content}</p>`
-      ).join('');
-      document.getElementById('history-modal').style.display='flex';
+      alert(
+        messages.map(m => `${m.role==='assistant'?'Linda':'Du'}: ${m.content}`)
+                .join('\n\n')
+      );
     };
     document.getElementById('btnNew').onclick = () => {
-      if (confirm('Einen neuen Chat starten?')) {
-        chatEl.innerHTML=''; messages=[];
+      if (confirm('Neuen Chat starten?')) {
+        chatEl.innerHTML = '';
+        messages = [];
       }
     };
     document.getElementById('btnDel').onclick = () => {
       if (confirm('Diesen Chat wirklich löschen?')) {
-        chatEl.innerHTML=''; messages=[];
+        chatEl.innerHTML = '';
+        messages = [];
       }
     };
-
-    // Initial
-    document.getElementById('privacy-modal').style.display='flex';
   </script>
 </body>
 </html>
