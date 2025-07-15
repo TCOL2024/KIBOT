@@ -31,13 +31,13 @@
     html, body { height: 100%; font-family: 'Inter', sans-serif; }
     body { display: flex; background: #f7f7f8; color: #24292e; overflow: hidden; }
 
-    /* Datenschutzhinweis-Modal */
+    /* Modal-Overlay & Card (gültig für beide) */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,38,90,0.45);
       z-index: 3000; display: flex; align-items: center; justify-content: center;
     }
     .modal-card {
-      background: #fff; border-radius: 16px; max-width: 440px; width: 95vw;
+      background: #fff; border-radius: 16px; max-width: 500px; width: 90vw;
       box-shadow: 0 8px 32px rgba(0,70,160,0.13); overflow: hidden;
       border: 1.5px solid #0059b3;
     }
@@ -45,11 +45,16 @@
       background: #0059b3; color: #fff; padding: 20px 26px;
       display: flex; align-items: center; font-size: 1.12rem; font-weight: 600;
     }
-    .modal-head .fa-lock { margin-right: 12px; font-size: 1.2rem; }
-    .modal-content { padding: 22px; font-size: 1.03rem; color: #1c273a; }
+    .modal-head .fa-lock,
+    .modal-head .fa-bullhorn { margin-right: 12px; font-size: 1.2rem; }
+    .modal-content {
+      padding: 22px; font-size: 1.03rem; color: #1c273a;
+      line-height: 1.5;
+    }
     .modal-content ul { margin: 14px 0 0 18px; }
     .modal-footer {
-      display: flex; justify-content: flex-end; gap: 14px; padding: 0 22px 18px;
+      display: flex; justify-content: flex-end; gap: 14px;
+      padding: 0 22px 18px;
     }
     .modal-btn {
       padding: 11px 28px; border-radius: 20px; border: none;
@@ -64,7 +69,7 @@
     }
     .modal-btn.decline:hover { background: #eaf1fa; color: #003974; }
 
-    /* Haupt-Interface (versteckt bis Zustimmung) */
+    /* Haupt-Interface (versteckt bis beide Zustimmungen) */
     #mainContainer { display: none; width: 100%; height: 100%; }
     .container { display: flex; width: 100%; height: 100%; }
     .comic {
@@ -142,7 +147,7 @@
 </head>
 
 <body>
-  <!-- Datenschutzhinweis -->
+  <!-- 1) Datenschutzhinweis -->
   <div class="modal-overlay" id="privacy-modal">
     <div class="modal-card">
       <div class="modal-head"><i class="fa-solid fa-lock"></i>Datenschutzhinweis</div>
@@ -157,6 +162,50 @@
       </div>
       <div class="modal-footer">
         <button class="modal-btn accept" id="acceptPrivacy">Zustimmen</button>
+        <button class="modal-btn decline" onclick="window.location.reload()">Ablehnen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2) Wichtige Hinweise zur Bot-Nutzung -->
+  <div class="modal-overlay" id="usage-modal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-head"><i class="fa-solid fa-bullhorn"></i>Wichtige Hinweise zur Bot-Nutzung</div>
+      <div class="modal-content">
+        <p>Bitte lesen Sie diese Hinweise sorgfältig durch und bestätigen Sie diese, bevor Sie den Bot verwenden.</p>
+        <ul>
+          <li><strong>Automatisierte Antworten:</strong><br>
+            Sie interagieren mit einem automatisierten Bot-System. Alle Antworten werden von künstlicher Intelligenz generiert, nicht von einem Menschen.
+          </li>
+          <li><strong>Keine Gewähr für Richtigkeit:</strong><br>
+            Die vom Bot bereitgestellten Informationen können unvollständig, veraltet oder fehlerhaft sein. Jede Antwort muss von Ihnen eigenständig überprüft und validiert werden.
+          </li>
+          <li><strong>Kein Ersatz für professionelle Beratung:</strong><br>
+            Der Bot ersetzt keine professionelle Beratung, insbesondere keine:
+            <ul>
+              <li>Rechtsberatung</li>
+              <li>Medizinische Beratung</li>
+              <li>Steuerberatung</li>
+              <li>Finanzberatung</li>
+              <li>Andere fachspezifische Beratungsleistungen</li>
+            </ul>
+            Wenden Sie sich für rechtliche, medizinische oder andere fachliche Angelegenheiten immer an entsprechende Fachkräfte.
+          </li>
+          <li><strong>Haftungsausschluss:</strong><br>
+            Jegliche Haftung für Schäden, die durch die Nutzung des Bots oder durch das Vertrauen auf die bereitgestellten Informationen entstehen, wird vollständig ausgeschlossen.
+          </li>
+          <li><strong>Eigenverantwortung:</strong><br>
+            Sie nutzen den Bot auf eigene Verantwortung und bestätigen, dass Sie:
+            <ul>
+              <li>Die Grenzen des Systems verstehen</li>
+              <li>Alle Antworten kritisch hinterfragen werden</li>
+              <li>Bei wichtigen Entscheidungen zusätzliche Quellen konsultieren</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn accept" id="acceptUsage">Zustimmen</button>
         <button class="modal-btn decline" onclick="window.location.reload()">Ablehnen</button>
       </div>
     </div>
@@ -197,9 +246,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    // Wenn auf "Zustimmen" geklickt wird, Modal verschwinden lassen & Chat anzeigen
+    // 1) Datenschutzhinweis: beim Zustimmen weiter zum Usage-Modal
     document.getElementById('acceptPrivacy').onclick = () => {
       document.getElementById('privacy-modal').style.display = 'none';
+      document.getElementById('usage-modal').style.display = 'flex';
+    };
+
+    // 2) Wichtige Hinweise: beim Zustimmen endlich das Chat-Interface zeigen
+    document.getElementById('acceptUsage').onclick = () => {
+      document.getElementById('usage-modal').style.display = 'none';
       document.getElementById('mainContainer').style.display = 'flex';
     };
 
@@ -210,9 +265,9 @@
       recognition.lang = 'de-DE';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
-      recognition.addEventListener('start', () => mic-btn.classList.add('recording'));
-      recognition.addEventListener('end', () => mic-btn.classList.remove('recording'));
-      recognition.addEventListener('result', ev => q.value = ev.results[0][0].transcript);
+      recognition.addEventListener('start', () => document.getElementById('mic-btn').classList.add('recording'));
+      recognition.addEventListener('end', () => document.getElementById('mic-btn').classList.remove('recording'));
+      recognition.addEventListener('result', ev => document.getElementById('q').value = ev.results[0][0].transcript);
       document.getElementById('mic-btn').addEventListener('click', () => recognition.start());
     } else {
       document.getElementById('mic-btn').disabled = true;
@@ -234,13 +289,13 @@
       const text = document.getElementById('q').value.trim();
       if (!text) return;
       append('user', text, 'user');
-      messages.push({ role:'user', content:text });
+      messages.push({ role:'user', content: text });
       append('assistant', '…', 'bot');
       document.getElementById('q').value = '';
       try {
         const res = await fetch('/.netlify/functions/webhook-proxy', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages })
         });
         const raw = await res.text();
@@ -248,7 +303,7 @@
         try { reply = JSON.parse(raw).reply || raw; } catch { reply = raw; }
         const bots = chatEl.querySelectorAll('.message.bot');
         bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>` + marked.parse(reply);
-        messages.push({ role:'assistant', content:reply });
+        messages.push({ role:'assistant', content: reply });
       } catch (err) {
         const bots = chatEl.querySelectorAll('.message.bot');
         bots[bots.length-1].innerHTML = `<strong>Linda:</strong><br>Fehler: ${err.message}`;
