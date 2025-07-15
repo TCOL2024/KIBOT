@@ -70,7 +70,8 @@
 
     /* mobile adjustments */
     @media (max-width: 768px) {
-      body { flex-direction: column; }
+      body { flex-direction: column; /* allow full page scroll */ overflow: auto; height: auto; }
+      html { height: auto; }
       .container { flex-direction: column; }
       .comic {
         flex: 0 0 auto;
