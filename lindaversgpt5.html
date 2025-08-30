@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <style>
     body { font-family: sans-serif; background: #f0f4f8; padding: 2rem; }
-    #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 500px; margin: auto; }
+    #chat { background: #fff; padding: 1rem; border-radius: 8px; max-width: 600px; margin: auto; }
     .line { margin-bottom: .5rem; }
     .user { color: #1e6cff; font-weight: bold; }
     .bot  { color: #008000; font-weight: bold; }
-    #form { display: flex; margin-top: 1rem; }
+    #form { display: flex; gap:.5rem; margin-top: 1rem; max-width: 600px; margin-left:auto; margin-right:auto; }
     #q { flex:1; padding:.5rem; font-size:1rem; }
     #btn { padding: .5rem 1rem; }
   </style>
@@ -25,38 +25,51 @@
   </form>
 
   <script>
-    // Einzige Änderung: neuer Make-Webhook
-    const webhook = "https://hook.us2.make.com/5e92q8frgmrood9tkbjp69zcr4itow8h";
-    const proxy   = "https://api.allorigins.win/raw?url=";
-    const chat    = document.getElementById("chat");
-    const form    = document.getElementById("form");
-    const q       = document.getElementById("q");
+    // ❗ Statt AllOrigins rufen wir einen eigenen Relay-Endpunkt auf (Netlify/Vercel/CF Worker).
+    // Netlify Functions Standardpfad:
+    const relay = "/.netlify/functions/linda-proxy";
 
-    form.addEventListener("submit", async e => {
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const q    = document.getElementById("q");
+    const btn  = document.getElementById("btn");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const frage = q.value.trim();
       if (!frage) return;
+
       append("Du", frage, "user");
-      append("Bot", "…warte", "bot");
+      const botIdx = append("Bot", "…warte", "bot");
       q.value = "";
+      q.disabled = true; btn.disabled = true;
 
       try {
-        const res = await fetch(proxy + encodeURIComponent(webhook), {
+        const res = await fetch(relay, {
           method: "POST",
-          headers: { "Content-Type":"application/json" },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: frage })
         });
-        const text = await res.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          data = { reply: text };
+
+        if (!res.ok) {
+          const t = await res.text().catch(()=> "");
+          throw new Error(`Relay ${res.status} ${res.statusText} ${t || ""}`.trim());
         }
-        const reply = data.reply || data.antwort || text;
-        updateLastBot(reply);
+
+        // Antwort kann JSON ODER Text sein – wir fangen beides ab
+        let text;
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("application/json")) {
+          const data = await res.json();
+          text = data.reply || data.antwort || data.output_text || JSON.stringify(data);
+        } else {
+          text = await res.text();
+        }
+        update(botIdx, "Bot", text);
       } catch (err) {
-        updateLastBot("Fehler beim Laden");
+        update(botIdx, "Bot", "Fehler: " + (err.message || "Unbekannter Fehler"));
+      } finally {
+        q.disabled = false; btn.disabled = false; q.focus();
       }
     });
 
@@ -66,11 +79,10 @@
       d.textContent = who + ": " + msg;
       chat.appendChild(d);
       chat.scrollTop = chat.scrollHeight;
+      return d; // Referenz zurückgeben, damit wir später aktualisieren können
     }
-    function updateLastBot(msg) {
-      const lines = chat.querySelectorAll(".line.bot");
-      const last  = lines[lines.length - 1];
-      last.textContent = "Bot: " + msg;
+    function update(node, who, msg) {
+      node.textContent = who + ": " + msg;
       chat.scrollTop = chat.scrollHeight;
     }
   </script>
