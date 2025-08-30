@@ -1,9 +1,9 @@
 // netlify/functions/linda-proxy.js
 export default async (req, context) => {
-  const ALLOWED_ORIGIN = "*"; // oder Deine Domain
+  const ALLOWED_ORIGIN = "*"; 
   const MAKE_WEBHOOK_URL =
     process.env.MAKE_WEBHOOK_URL ||
-    "https://hook.us2.make.com/5e92q8frgmrood9tkbjp69zcr4itow8h"; // <- dein neuer Hook
+    "https://hook.us2.make.com/5e92q8frgmrood9tkbjp69zcr4itow8h";
 
   // Preflight für CORS
   if (req.method === "OPTIONS") {
@@ -12,7 +12,7 @@ export default async (req, context) => {
       headers: {
         "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Max-Age": "86400"
       }
     });
@@ -25,21 +25,16 @@ export default async (req, context) => {
     });
   }
 
-  let bodyText = "";
-  try {
-    bodyText = await req.text(); // Roh übernehmen (Make akzeptiert JSON-Body)
-  } catch {
-    bodyText = "";
-  }
+  // Body lesen
+  const bodyText = await req.text();
 
-  // Weiterleiten an Make (1:1)
+  // An Make durchreichen
   const fwd = await fetch(MAKE_WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: bodyText
   });
 
-  // Antwort vom Make-Scenario so wie sie kommt zurückgeben
   const contentType = fwd.headers.get("content-type") || "text/plain";
   const payload = await fwd.text();
 
