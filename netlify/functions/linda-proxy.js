@@ -1,48 +1,36 @@
 // netlify/functions/linda-proxy.js
-export default async (req, context) => {
-  const ALLOWED_ORIGIN = "*"; 
-  const MAKE_WEBHOOK_URL =
-    process.env.MAKE_WEBHOOK_URL ||
-    "https://hook.us2.make.com/5e92q8frgmrood9tkbjp69zcr4itow8h";
+const fetch = require('node-fetch');
+
+exports.handler = async (event) => {
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
 
   // Preflight für CORS
-  if (req.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Access-Control-Max-Age": "86400"
-      }
-    });
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: cors, body: '' };
   }
 
-  if (req.method !== "POST") {
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: { "Access-Control-Allow-Origin": ALLOWED_ORIGIN }
-    });
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, headers: { ...cors, Allow: 'POST' }, body: 'Method Not Allowed' };
   }
 
-  // Body lesen
-  const bodyText = await req.text();
+  // 👉 Dein neuer Make-Webhook
+  const webhookUrl = process.env.MAKE_WEBHOOK_URL 
+    || 'https://hook.us2.make.com/5e92q8frgmrood9tkbjp69zcr4itow8h';
 
-  // An Make durchreichen
-  const fwd = await fetch(MAKE_WEBHOOK_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: bodyText
-  });
+  try {
+    const resp = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: event.body, // User-Frage 1:1 an Make weiterreichen
+    });
 
-  const contentType = fwd.headers.get("content-type") || "text/plain";
-  const payload = await fwd.text();
-
-  return new Response(payload, {
-    status: fwd.status,
-    headers: {
-      "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-      "Content-Type": contentType
-    }
-  });
+    const text = await resp.text();
+    return { statusCode: resp.status, headers: cors, body: text };
+  } catch (err) {
+    return { statusCode: 500, headers: cors, body: `Internal error: ${err}` };
+  }
 };
