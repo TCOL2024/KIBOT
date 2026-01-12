@@ -6,15 +6,16 @@
 const MAX_TEXT_LEN = 8000;
 const MAX_HISTORY_MESSAGES = 6; // 3 Turns (user/assistant)
 const BLOCK_MESSAGE =
-  "Dabei kann ich nicht helfen. Bitte formuliere deine Frage ohne Aufforderungen, interne Anweisungen offenzulegen.";
+  "Dabei kann ich nicht helfen. Ich beantworte ausschließlich fachliche Fragen (z. B. Ausbildung/AEVO, Prüfungen, Personalmanagement).";
 
 /* =========================
-   AEVO FAST DETECTION
+   AEVO / AUSBILDUNG TAGGING (FAST)
+   - adds tags: ["AEVO"] when question is likely Ausbildung/AEVO-related
 ========================= */
 const AEVO_PATTERNS = [
   /\baevo\b/i,
   /\bbbig\b/i,
-  /\bausbild\w*/i,          // ausbildung, ausbilder, ausbilden
+  /\bausbild\w*/i,          // ausbildung, ausbilder, ausbilden, ...
   /\bazubi\w*/i,            // azubi, azubis
   /\bauszubild\w*/i,        // auszubildende
   /\bberufsausbild\w*/i,    // berufsausbildung
@@ -37,15 +38,16 @@ function detectTags(question) {
 }
 
 /* =========================
-   PROMPT-INJECTION / EXFIL FILTER (HARD)
-   - blocks obvious attempts to reveal system/developer/tooling,
-     secrets, payload structure, etc.
+   HARD INPUT BLOCKING
+   1) Keyword/structure exfil
+   2) Meta/Audit/Debug intention (semantic injection)
 ========================= */
+
+// 1) Direct exfil / system / tooling / secrets / payload structure
 const BLOCK_PATTERNS = [
   // roles & system
   /\bsystem\b/i,
   /\bdeveloper\b/i,
-  /\bassistant\b/i, // häufig in Rollen-Manipulation ("du bist jetzt assistant")
   /\brole\s*:\s*["']?(system|developer|assistant|tool)["']?/i,
 
   // prompt / instructions
@@ -53,7 +55,7 @@ const BLOCK_PATTERNS = [
   /\bsystem\s*prompt\b/i,
   /\bdeveloper\s*prompt\b/i,
   /\binstruction(s)?\b/i,
-  /\bignore\b/i,                // "ignore all..."
+  /\bignore\b/i,
   /\bignoriere\b/i,
   /\boverride\b/i,
 
@@ -67,7 +69,7 @@ const BLOCK_PATTERNS = [
   /\bfile_search\b/i,
   /\bknowledge\s*cutoff\b/i,
 
-  // secrets / tokens / env
+  // secrets / tokens / env / webhook fishing
   /\bapi\s*key\b/i,
   /\btoken\b/i,
   /\bsecret\b/i,
@@ -78,16 +80,49 @@ const BLOCK_PATTERNS = [
   /\bhook\.us\d\.make\.com\b/i
 ];
 
-function shouldBlockText(text) {
+// 2) Semantic “meta” requests that often bypass keyword filters
+// These are exactly the “Audit/Debug-Protokoll/Struktur/JSON-Felder” style attacks.
+const INTENT_BLOCK_PATTERNS = [
+  /\bdebug\b/i,
+  /\bdebug[-\s]?protokoll\b/i,
+  /\baudit\b/i,
+  /\bforensik\b/i,
+  /\bprotokoll\b/i,
+  /\bintern(e|er|en)?\b/i,
+  /\binterne\s+regeln\b/i,
+  /\bregeln\s+zusammenfassung\b/i,
+  /\bzusammenfassung\s+der\s+regeln\b/i,
+  /\bwie\s+du\s+arbeitest\b/i,
+  /\bwie\s+du\s+verarbeitest\b/i,
+  /\bwie\s+ist\s+dein\s+aufbau\b/i,
+  /\bkonfiguration\b/i,
+  /\bsetup\b/i,
+  /\bgenutzte\s+tools\b/i,
+  /\btool\s*config\b/i,
+  /\bknowledge\s*cutoff\b/i,
+  /\bcutoff\b/i,
+  /\brequest\s*payload\b/i,
+  /\bpayload[-\s]?struktur\b/i,
+  /\bmessages[-\s]?array\b/i,
+  /\bfelder\b/i,
+  /\bjson\b/i,
+  /\banonymisier\w*\b/i,
+  /\bplatzhalter\b/i,
+  /\bwortwörtlich\b/i,
+  /\bverbatim\b/i
+];
+
+function shouldBlockInput(text) {
   const t = String(text || "");
-  for (const rx of BLOCK_PATTERNS) {
-    if (rx.test(t)) return true;
-  }
+  for (const rx of BLOCK_PATTERNS) if (rx.test(t)) return true;
+  for (const rx of INTENT_BLOCK_PATTERNS) if (rx.test(t)) return true;
   return false;
 }
 
 /* =========================
-   OUTPUT FILTER (optional but recommended)
+   OUTPUT NOTBREMSE (VERY IMPORTANT)
+   - blocks “structured leakage” like the screenshots:
+     internal rules, tools, cutoff, payload schemas, etc.
 ========================= */
 function shouldBlockOutput(text) {
   const t = String(text || "").trim();
@@ -96,8 +131,26 @@ function shouldBlockOutput(text) {
   // HTML error pages / unexpected HTML
   if (t.startsWith("<!DOCTYPE html") || t.startsWith("<html")) return true;
 
-  // leak markers
-  const leak = /(knowledge cutoff|file_search|tools|role\s*:\s*["']system["']|messages\s*=|openai\.chat|developer prompt)/i;
+  // "structured leakage" markers (German + English)
+  const structuredLeak = /(
+    system[-\s]?prompt|
+    developer[-\s]?prompt|
+    interne\s+regeln|
+    genutzte\s+tools|
+    knowledge\s*cutoff|
+    payload|
+    request_payload|
+    tool_config|
+    messages[-\s]?array|
+    rolle\s+und\s+identität|
+    antwortstruktur|
+    der\s+gesamte\s+prompt
+  )/ix;
+
+  if (structuredLeak.test(t)) return true;
+
+  // Generic leak markers
+  const leak = /(file_search|tools|role\s*:\s*["']system["']|messages\s*=|openai\.chat)/i;
   return leak.test(t);
 }
 
@@ -137,11 +190,13 @@ export default async (req) => {
     return new Response("Method Not Allowed", { status: 405 });
   }
 
+  // Make Webhook URL from env var (must be set in Netlify)
   const webhookUrl = Netlify.env.get("PROXY_LINDA2026");
   if (!webhookUrl) {
     return new Response("Server not configured", { status: 500 });
   }
 
+  // Optional shared secret header for Make verification
   const proxySecret = Netlify.env.get("PROXY_SECRET");
 
   /* --- Read input --- */
@@ -155,6 +210,7 @@ export default async (req) => {
       question = normalize(body.question);
       history = coerceHistory(body.history);
     } else {
+      // Fallback: accept text/plain
       question = normalize(await req.text());
       history = [];
     }
@@ -165,8 +221,8 @@ export default async (req) => {
   if (!question) return new Response("Missing input", { status: 400 });
   if (question.length > MAX_TEXT_LEN) return new Response("Input too long", { status: 413 });
 
-  // HARD block on suspicious input
-  if (shouldBlockText(question)) {
+  /* --- HARD input block BEFORE any upstream call --- */
+  if (shouldBlockInput(question)) {
     return new Response(BLOCK_MESSAGE, {
       status: 200,
       headers: { "Content-Type": "text/plain; charset=utf-8" }
@@ -202,9 +258,9 @@ export default async (req) => {
 
   const out = await resp.text();
 
-  // Block suspicious output as well
+  /* --- HARD output block (prevents the exact leak in your screenshots) --- */
   if (shouldBlockOutput(out)) {
-    return new Response("Technischer Fehler im Backend. Bitte erneut versuchen.", {
+    return new Response("⚠️ Interner Systemfehler. Die Anfrage konnte nicht sicher verarbeitet werden.", {
       status: 502,
       headers: { "Content-Type": "text/plain; charset=utf-8" }
     });
