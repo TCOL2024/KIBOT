@@ -3,7 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <title>Linda – Deine persönliche Assistentin (Comic)</title>
+
+  <!-- Basic hardening (Header wären besser, aber als HTML-Meta ok als Zusatz) -->
+  <meta name="referrer" content="no-referrer" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    object-src 'none';
+    connect-src 'self';
+    img-src 'self' https://ntc-bot1.netlify.app data:;
+    font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    script-src 'self' 'unsafe-inline';
+    upgrade-insecure-requests;
+  ">
 
   <!-- Manifest & Meta -->
   <link rel="manifest" href="manifest.json"/>
@@ -11,7 +28,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-title" content="ChatBot"/>
 
-  <!-- Icons & Inter -->
+  <!-- Icons & Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 
@@ -50,6 +67,7 @@
     .chat-controls { position:absolute; top:1rem; right:1.5rem; display:flex; gap:.5rem; z-index:5 }
     .control-btn { background:rgba(255,255,255,0.8); border:1px solid #e1e4e8; border-radius:.5rem; width:2.3rem; height:2.3rem; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:#57606a; cursor:pointer; transition:background .2s,color .2s }
     .control-btn:hover { background:#fff; color:#24292e }
+    .control-btn:disabled { opacity:.45; cursor:not-allowed }
 
     /* Chatfenster */
     #chat { flex:1; overflow-y:auto; padding:1rem 1.5rem; display:flex; flex-direction:column; gap:1rem; background:#f7f7f8 }
@@ -61,7 +79,9 @@
     .input-bar { display:flex; align-items:center; padding:.5rem 1rem calc(env(safe-area-inset-bottom)+.5rem); background:#fff; border-top:1px solid #e1e4e8 }
     .input-bar button { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#57606a; margin:0 .25rem; padding:.75rem }
     .input-bar button:hover { color:#24292e }
+    .input-bar button:disabled { opacity:.45; cursor:not-allowed }
     #q { flex:1; border:none; outline:none; background:#f0f4f8; border-radius:.5rem; padding:1rem; margin:0 .5rem; font-size:1rem; line-height:1.4 }
+    #q:disabled { opacity:.7 }
     .recording { color:#d00!important }
 
     /* Sessions-Modal */
@@ -89,6 +109,7 @@
     }
   </style>
 </head>
+
 <body>
   <!-- 1) Datenschutzhinweis -->
   <div class="modal-overlay" id="privacy-modal">
@@ -101,8 +122,8 @@
           <li>Die übermittelten Daten werden für die Generierung von Antworten verarbeitet und können auf Servern außerhalb der EU gespeichert werden.</li>
           <li>Bitte gib <strong>keine personenbezogenen oder sensiblen Daten</strong> ein!</li>
           <li>Weitere Informationen:
-            <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI</a>,
-            <a href="https://www.make.com/en/privacy-policy" target="_blank" rel="noopener">Make.com</a>.
+            <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer">OpenAI</a>,
+            <a href="https://www.make.com/en/privacy-policy" target="_blank" rel="noopener noreferrer">Make.com</a>.
           </li>
         </ul>
       </div>
@@ -127,26 +148,10 @@
             Die vom Bot bereitgestellten Informationen können unvollständig, veraltet oder fehlerhaft sein. Jede Antwort muss von Ihnen eigenständig überprüft und validiert werden.
           </li>
           <li><strong>Kein Ersatz für professionelle Beratung:</strong><br>
-            Der Bot ersetzt keine professionelle Beratung, insbesondere keine:
-            <ul>
-              <li>Rechtsberatung</li>
-              <li>Medizinische Beratung</li>
-              <li>Steuerberatung</li>
-              <li>Finanzberatung</li>
-              <li>Andere fachspezifische Beratungsleistungen</li>
-            </ul>
-            Wenden Sie sich für rechtliche, medizinische oder andere fachliche Angelegenheiten immer an entsprechende Fachkräfte.
-          </li>
-          <li><strong>Haftungsausschluss:</strong><br>
-            Jegliche Haftung für Schäden, die durch die Nutzung des Bots oder durch das Vertrauen auf die bereitgestellten Informationen entstehen, wird vollständig ausgeschlossen.
+            Der Bot ersetzt keine professionelle Beratung (z. B. Rechts-, Medizin-, Steuer- oder Finanzberatung).
           </li>
           <li><strong>Eigenverantwortung:</strong><br>
-            Sie nutzen den Bot auf eigene Verantwortung und bestätigen, dass Sie:
-            <ul>
-              <li>Die Grenzen des Systems verstehen</li>
-              <li>Alle Antworten kritisch hinterfragen</li>
-              <li>Bei wichtigen Entscheidungen zusätzliche Quellen konsultieren</li>
-            </ul>
+            Sie nutzen den Bot auf eigene Verantwortung und hinterfragen Antworten kritisch.
           </li>
         </ul>
       </div>
@@ -164,17 +169,21 @@
         <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Linda"/>
         <div class="comic-name">Linda</div>
       </div>
+
       <div class="chat-area">
         <header>Linda. Deine persönliche Assistentin im Bereich Personalmanagement.</header>
+
         <div class="chat-controls">
           <button id="btnSessions" class="control-btn" title="Gespeicherte Chats"><i class="fa-solid fa-list"></i></button>
           <button id="btnNew"      class="control-btn" title="Neuer Chat"><i class="fa-solid fa-plus"></i></button>
           <button id="btnDel"      class="control-btn" title="Chat löschen"><i class="fa-solid fa-trash"></i></button>
         </div>
+
         <div id="chat"></div>
+
         <div class="input-bar">
-          <button id="tools-btn" title="Tools">⚙️</button>
-          <input  id="q" type="text" placeholder="Deine Frage…" autocomplete="off"/>
+          <button id="tools-btn" title="Tools (ohne Funktion)" disabled>⚙️</button>
+          <input  id="q" type="text" placeholder="Deine Frage…" autocomplete="off" maxlength="8000"/>
           <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
           <button id="send-btn" title="Senden">➤</button>
         </div>
@@ -194,8 +203,11 @@
   </div>
 
   <script>
-    // === Netlify Function Endpoint (PROXY_LINDA2026) ===
-    const PROXY_ENDPOINT = '/.netlify/functions/PROXY_LINDA2026';
+    // ✅ Nur die Netlify Function – nie die Make-URL.
+    const PROXY_ENDPOINT = "/.netlify/functions/PROXY_LINDA2026";
+
+    // Timeout für Requests (ms)
+    const REQUEST_TIMEOUT_MS = 20000;
 
     // Elemente
     const privacyModal   = document.getElementById('privacy-modal');
@@ -204,6 +216,13 @@
     const sessionsModal  = document.getElementById('sessions-modal');
     const sessionsListEl = document.getElementById('sessions-list');
     const chatEl         = document.getElementById('chat');
+
+    const inputEl        = document.getElementById('q');
+    const sendBtn        = document.getElementById('send-btn');
+    const micBtn         = document.getElementById('mic-btn');
+    const btnSessions    = document.getElementById('btnSessions');
+    const btnNew         = document.getElementById('btnNew');
+    const btnDel         = document.getElementById('btnDel');
 
     // Storage & Sessions
     const STORAGE_KEY = 'chat-sessions';
@@ -263,7 +282,7 @@
       renderSessionList();
     }
 
-    // XSS-sicheres Rendering (kein marked)
+    // XSS-sicheres Rendering
     function escapeHTML(str){
       return String(str)
         .replaceAll("&","&amp;")
@@ -291,7 +310,7 @@
       sessionsListEl.innerHTML = sessions.map(s=>`
         <div class="session-item" data-id="${s.id}">
           <span>${escapeHTML(s.name||'Chat')}</span>
-          <button class="del-session" data-id="${s.id}">🗑️</button>
+          <button class="del-session" data-id="${s.id}" aria-label="Chat löschen">🗑️</button>
         </div>`).join('');
       document.querySelectorAll('.session-item').forEach(el=>{
         el.onclick = ()=> loadSession(el.dataset.id);
@@ -330,11 +349,11 @@
     function hideSessionsModal(){
       sessionsModal.style.display='none';
     }
-    document.getElementById('btnSessions').onclick   = showSessionsModal;
+    btnSessions.onclick = showSessionsModal;
     document.getElementById('sessions-close').onclick = hideSessionsModal;
 
     // Neuer Chat
-    document.getElementById('btnNew').onclick = ()=>{
+    btnNew.onclick = ()=>{
       if(confirm('Neuen Chat starten?')){
         const s = createSession();
         messages = s.messages.slice();
@@ -343,7 +362,7 @@
     };
 
     // Chat löschen
-    document.getElementById('btnDel').onclick = ()=>{
+    btnDel.onclick = ()=>{
       if(confirm('Diesen Chat wirklich löschen?')){
         messages = [];
         updateSession();
@@ -356,39 +375,61 @@
     if(SpeechRec){
       const rec = new SpeechRec();
       rec.lang='de-DE'; rec.interimResults=false; rec.maxAlternatives=1;
-      rec.onstart = ()=> document.getElementById('mic-btn').classList.add('recording');
-      rec.onend   = ()=> document.getElementById('mic-btn').classList.remove('recording');
-      rec.onresult= e=> document.getElementById('q').value = e.results[0][0].transcript;
-      document.getElementById('mic-btn').onclick = ()=> rec.start();
+      rec.onstart = ()=> micBtn.classList.add('recording');
+      rec.onend   = ()=> micBtn.classList.remove('recording');
+      rec.onresult= e=> inputEl.value = e.results[0][0].transcript;
+      micBtn.onclick = ()=> rec.start();
     } else {
-      document.getElementById('mic-btn').disabled = true;
+      micBtn.disabled = true;
     }
 
-    // send(): Text -> Proxy -> Text (kein JSON, keine History)
+    // Busy state
+    function setBusy(isBusy){
+      sendBtn.disabled = isBusy;
+      inputEl.disabled = isBusy;
+      micBtn.disabled  = isBusy || micBtn.disabled;
+      btnSessions.disabled = isBusy;
+      btnNew.disabled = isBusy;
+      btnDel.disabled = isBusy;
+    }
+
+    // send(): Text -> Proxy -> Text (ohne JSON/History)
     async function send(){
-      const inp = document.getElementById('q');
-      const text= inp.value.trim();
+      const text= (inputEl.value || '').trim();
       if(!text) return;
 
       messages.push({role:'user',content:text});
       renderMessages();
-      inp.value='';
+      inputEl.value='';
 
       messages.push({role:'assistant',content:'…'});
       renderMessages();
       updateSession();
 
+      setBusy(true);
+
       let reply = 'Technischer Fehler.';
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
       try {
         const res = await fetch(PROXY_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type':'text/plain; charset=utf-8' },
-          body: text
+          body: text,
+          cache: 'no-store',
+          credentials: 'same-origin',
+          redirect: 'error',
+          signal: controller.signal
         });
         reply = await res.text();
         if(!reply) reply = 'Keine Antwort erhalten.';
       } catch(err){
-        reply = 'Fehler: ' + (err && err.message ? err.message : String(err));
+        reply = (err && err.name === 'AbortError')
+          ? 'Zeitüberschreitung – bitte erneut versuchen.'
+          : 'Fehler: ' + (err && err.message ? err.message : String(err));
+      } finally {
+        clearTimeout(timer);
       }
 
       // Placeholder ersetzen
@@ -401,10 +442,12 @@
 
       updateSession();
       renderMessages();
+      setBusy(false);
+      inputEl.focus();
     }
 
-    document.getElementById('send-btn').onclick = send;
-    document.getElementById('q').addEventListener('keydown',e=>{
+    sendBtn.onclick = send;
+    inputEl.addEventListener('keydown',e=>{
       if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }
     });
 
