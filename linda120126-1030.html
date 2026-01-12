@@ -65,14 +65,12 @@
     .recording { color:#d00!important }
 
     /* Sessions-Modal */
-    .session-item { display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid #e3eefa; cursor:pointer; gap:.75rem; align-items:center }
+    .session-item { display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid #e3eefa; cursor:pointer }
     .session-item:last-child { border:none }
-    .session-item span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-    .del-session { border:none; background:#f3f4f6; border-radius:10px; padding:.25rem .5rem; cursor:pointer }
 
     /* mobile adjustments */
     @media (max-width: 768px) {
-      body { flex-direction: column; /* allow full page scroll */ overflow: auto; height: auto; }
+      body { flex-direction: column; overflow: auto; height: auto; }
       html { height: auto; }
       .container { flex-direction: column; }
       .comic {
@@ -102,7 +100,10 @@
           <li>Deine Eingaben werden an externe KI-Dienstleister (OpenAI, USA) und die Automatisierungsplattform (Make, EU) übermittelt.</li>
           <li>Die übermittelten Daten werden für die Generierung von Antworten verarbeitet und können auf Servern außerhalb der EU gespeichert werden.</li>
           <li>Bitte gib <strong>keine personenbezogenen oder sensiblen Daten</strong> ein!</li>
-          <li>Weitere Informationen: <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI</a>, <a href="https://www.make.com/en/privacy-policy" target="_blank" rel="noopener">Make.com</a>.</li>
+          <li>Weitere Informationen:
+            <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI</a>,
+            <a href="https://www.make.com/en/privacy-policy" target="_blank" rel="noopener">Make.com</a>.
+          </li>
         </ul>
       </div>
       <div class="modal-footer">
@@ -193,12 +194,8 @@
   </div>
 
   <script>
-    /************************************************************
-     * Secure-Konfig
-     ************************************************************/
-    // Nutze den Netlify-Proxy (Function config.path = "/api/webhook-proxy")
-    // Falls du keinen friendly path nutzt, setze z.B. "/.netlify/functions/webhook-proxy"
-    const PROXY_ENDPOINT = "/api/webhook-proxy";
+    // === Proxy Endpoint: wie von dir gewünscht ===
+    const PROXY_ENDPOINT = '/.netlify/functions/webhook-proxy';
 
     // Elemente
     const privacyModal   = document.getElementById('privacy-modal');
@@ -266,16 +263,14 @@
       renderSessionList();
     }
 
-    /************************************************************
-     * XSS-sicheres Rendering (kein marked, kein HTML aus Modell)
-     ************************************************************/
+    // XSS-sicheres Rendering (kein marked)
     function escapeHTML(str){
       return String(str)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#39;");
     }
 
     // Nachrichten & UI
@@ -284,9 +279,9 @@
       chatEl.innerHTML = '';
       for(const m of messages){
         const div = document.createElement('div');
-        div.className = 'message ' + (m.role==='assistant'?'bot':'user');
+        div.className = 'message '+(m.role==='assistant'?'bot':'user');
         const who = (m.role==='assistant') ? 'Linda' : 'Du';
-        div.innerHTML = `<strong>${who}:</strong><br>${escapeHTML(m.content).replace(/\n/g, "<br>")}`;
+        div.innerHTML = `<strong>${who}:</strong><br>${escapeHTML(m.content).replace(/\n/g,'<br>')}`;
         chatEl.appendChild(div);
       }
       chatEl.scrollTop = chatEl.scrollHeight;
@@ -296,7 +291,7 @@
       sessionsListEl.innerHTML = sessions.map(s=>`
         <div class="session-item" data-id="${s.id}">
           <span>${escapeHTML(s.name||'Chat')}</span>
-          <button class="del-session" data-id="${s.id}" title="Löschen">🗑️</button>
+          <button class="del-session" data-id="${s.id}">🗑️</button>
         </div>`).join('');
       document.querySelectorAll('.session-item').forEach(el=>{
         el.onclick = ()=> loadSession(el.dataset.id);
@@ -335,7 +330,7 @@
     function hideSessionsModal(){
       sessionsModal.style.display='none';
     }
-    document.getElementById('btnSessions').onclick    = showSessionsModal;
+    document.getElementById('btnSessions').onclick   = showSessionsModal;
     document.getElementById('sessions-close').onclick = hideSessionsModal;
 
     // Neuer Chat
@@ -351,7 +346,6 @@
     document.getElementById('btnDel').onclick = ()=>{
       if(confirm('Diesen Chat wirklich löschen?')){
         messages = [];
-        // Optional: oder messages = [initialMsg];
         updateSession();
         renderMessages();
       }
@@ -370,14 +364,10 @@
       document.getElementById('mic-btn').disabled = true;
     }
 
-    /************************************************************
-     * send() – Text -> Proxy -> Text (Secure)
-     * - kein JSON
-     * - keine History
-     ************************************************************/
+    // send(): Text -> Proxy -> Text (kein JSON, keine History)
     async function send(){
       const inp = document.getElementById('q');
-      const text = inp.value.trim();
+      const text= inp.value.trim();
       if(!text) return;
 
       messages.push({role:'user',content:text});
@@ -392,7 +382,7 @@
       try {
         const res = await fetch(PROXY_ENDPOINT, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          headers: { 'Content-Type':'text/plain; charset=utf-8' },
           body: text
         });
         reply = await res.text();
@@ -402,8 +392,8 @@
       }
 
       // Placeholder ersetzen
-      for(let i = messages.length - 1; i >= 0; i--){
-        if(messages[i].role === 'assistant' && messages[i].content === '…'){
+      for (let i = messages.length - 1; i >= 0; i--){
+        if(messages[i].role==='assistant' && messages[i].content==='…'){
           messages[i] = { role:'assistant', content: reply };
           break;
         }
@@ -415,10 +405,7 @@
 
     document.getElementById('send-btn').onclick = send;
     document.getElementById('q').addEventListener('keydown',e=>{
-      if(e.key==='Enter' && !e.shiftKey){
-        e.preventDefault();
-        send();
-      }
+      if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }
     });
 
     // Initial
