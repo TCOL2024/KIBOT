@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Linda – Deine persönliche Assistentin (Comic)</title>
+
+  <!-- Manifest & Meta -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#2346e4"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="ChatBot"/>
+
+  <!-- Icons & Inter -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0 }
+    html, body { height:100%; font-family:'Inter',sans-serif }
+    body { display:flex; background:#f7f7f8; color:#24292e; overflow:hidden }
+
+    /* Modal-Overlay & Card */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,38,90,0.45); display:flex; align-items:center; justify-content:center; z-index:3000 }
+    .modal-card { background:#fff; border-radius:16px; width:90vw; max-width:500px; box-shadow:0 8px 32px rgba(0,70,160,0.13); border:1.5px solid #0059b3; overflow:hidden }
+    .modal-head { background:#0059b3; color:#fff; padding:20px 26px; display:flex; align-items:center; font-size:1.12rem; font-weight:600 }
+    .modal-head .fa-lock, .modal-head .fa-bullhorn { margin-right:12px; font-size:1.2rem }
+    .modal-content { padding:16px 22px; font-size:.9rem; line-height:1.4; color:#1c273a; max-height:60vh; overflow-y:auto }
+    .modal-content ul { margin:12px 0 0 18px }
+    .modal-content li { margin-bottom:.5rem }
+    .modal-footer { display:flex; justify-content:flex-end; gap:14px; padding:0 22px 18px }
+    .modal-btn { padding:10px 24px; border:none; border-radius:20px; font-size:1rem; font-weight:600; cursor:pointer; box-shadow:0 1px 5px rgba(0,89,179,0.06); transition:background .14s,color .12s }
+    .modal-btn.accept { background:#0059b3; color:#fff }
+    .modal-btn.accept:hover { background:#003974 }
+    .modal-btn.decline { background:#f3f4f6; color:#0059b3; border:1px solid #c7d5ea }
+    .modal-btn.decline:hover { background:#eaf1fa; color:#003974 }
+
+    /* Hauptinterface */
+    #mainContainer { display:none; width:100%; height:100% }
+    .container { display:flex; width:100%; height:100% }
+
+    /* Comic-Leiste */
+    .comic { flex:0 0 300px; background:#fff; display:flex; flex-direction:column; align-items:center; border-right:1px solid #e1e4e8; padding:1rem }
+    .comic img { width:100%; border-radius:.5rem }
+    .comic-name { margin-top:.5rem; font-family:'Segoe Script','Comic Sans MS',cursive; font-size:1.5rem; color:#333 }
+
+    /* Chat-Bereich */
+    .chat-area { position:relative; flex:1; display:flex; flex-direction:column }
+    .chat-area header { padding:1rem 1.5rem; font-size:1.25rem; font-weight:500; background:#fff; border-bottom:1px solid #e1e4e8 }
+    .chat-controls { position:absolute; top:1rem; right:1.5rem; display:flex; gap:.5rem; z-index:5 }
+    .control-btn { background:rgba(255,255,255,0.8); border:1px solid #e1e4e8; border-radius:.5rem; width:2.3rem; height:2.3rem; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:#57606a; cursor:pointer; transition:background .2s,color .2s }
+    .control-btn:hover { background:#fff; color:#24292e }
+
+    /* Chatfenster */
+    #chat { flex:1; overflow-y:auto; padding:1rem 1.5rem; display:flex; flex-direction:column; gap:1rem; background:#f7f7f8 }
+    .message { max-width:75%; padding:.75rem 1rem; border-radius:1rem; box-shadow:0 1px 2px rgba(0,0,0,0.1); line-height:1.5; white-space:pre-wrap; word-break:break-word }
+    .bot { align-self:flex-start; background:#fff; color:#24292e }
+    .user { align-self:flex-end; background:#0969da; color:#fff }
+
+    /* Inputbar */
+    .input-bar { display:flex; align-items:center; padding:.5rem 1rem calc(env(safe-area-inset-bottom)+.5rem); background:#fff; border-top:1px solid #e1e4e8 }
+    .input-bar button { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#57606a; margin:0 .25rem; padding:.75rem }
+    .input-bar button:hover { color:#24292e }
+    #q { flex:1; border:none; outline:none; background:#f0f4f8; border-radius:.5rem; padding:1rem; margin:0 .5rem; font-size:1rem; line-height:1.4 }
+    .recording { color:#d00!important }
+
+    /* Sessions-Modal */
+    .session-item { display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid #e3eefa; cursor:pointer; gap:.75rem; align-items:center }
+    .session-item:last-child { border:none }
+    .session-item span { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+    .del-session { border:none; background:#f3f4f6; border-radius:10px; padding:.25rem .5rem; cursor:pointer }
+
+    /* mobile adjustments */
+    @media (max-width: 768px) {
+      body { flex-direction: column; /* allow full page scroll */ overflow: auto; height: auto; }
+      html { height: auto; }
+      .container { flex-direction: column; }
+      .comic {
+        flex: 0 0 auto;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e1e4e8;
+      }
+      .chat-area { flex: 1; }
+      .modal-card { width: 95vw; }
+      .control-btn { width: 2rem; height: 2rem; font-size: 1rem; }
+      #chat { padding: 0.5rem 1rem; }
+      .message { max-width: 90%; padding: 0.5rem 0.75rem; }
+      .input-bar { padding: 0.25rem 0.5rem calc(env(safe-area-inset-bottom)+0.25rem); }
+      #q { padding: 0.75rem; font-size: 0.9rem; margin: 0 0.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 1) Datenschutzhinweis -->
+  <div class="modal-overlay" id="privacy-modal">
+    <div class="modal-card">
+      <div class="modal-head"><i class="fa-solid fa-lock"></i>Datenschutzhinweis</div>
+      <div class="modal-content">
+        <p>Um diesen Chatbot nutzen zu können, ist deine Zustimmung zur Datenschutzerklärung erforderlich:</p>
+        <ul>
+          <li>Deine Eingaben werden an externe KI-Dienstleister (OpenAI, USA) und die Automatisierungsplattform (Make, EU) übermittelt.</li>
+          <li>Die übermittelten Daten werden für die Generierung von Antworten verarbeitet und können auf Servern außerhalb der EU gespeichert werden.</li>
+          <li>Bitte gib <strong>keine personenbezogenen oder sensiblen Daten</strong> ein!</li>
+          <li>Weitere Informationen: <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI</a>, <a href="https://www.make.com/en/privacy-policy" target="_blank" rel="noopener">Make.com</a>.</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn accept" id="acceptPrivacy">Zustimmen</button>
+        <button class="modal-btn decline" onclick="location.reload()">Ablehnen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2) Wichtige Hinweise zur Bot-Nutzung -->
+  <div class="modal-overlay" id="usage-modal" style="display:none">
+    <div class="modal-card">
+      <div class="modal-head"><i class="fa-solid fa-bullhorn"></i>Wichtige Hinweise zur Bot-Nutzung</div>
+      <div class="modal-content">
+        <p>Bitte lesen Sie diese Hinweise sorgfältig durch und bestätigen Sie diese, bevor Sie den Bot verwenden.</p>
+        <ul>
+          <li><strong>Automatisierte Antworten:</strong><br>
+            Sie interagieren mit einem automatisierten Bot-System. Alle Antworten werden von künstlicher Intelligenz generiert, nicht von einem Menschen.
+          </li>
+          <li><strong>Keine Gewähr für Richtigkeit:</strong><br>
+            Die vom Bot bereitgestellten Informationen können unvollständig, veraltet oder fehlerhaft sein. Jede Antwort muss von Ihnen eigenständig überprüft und validiert werden.
+          </li>
+          <li><strong>Kein Ersatz für professionelle Beratung:</strong><br>
+            Der Bot ersetzt keine professionelle Beratung, insbesondere keine:
+            <ul>
+              <li>Rechtsberatung</li>
+              <li>Medizinische Beratung</li>
+              <li>Steuerberatung</li>
+              <li>Finanzberatung</li>
+              <li>Andere fachspezifische Beratungsleistungen</li>
+            </ul>
+            Wenden Sie sich für rechtliche, medizinische oder andere fachliche Angelegenheiten immer an entsprechende Fachkräfte.
+          </li>
+          <li><strong>Haftungsausschluss:</strong><br>
+            Jegliche Haftung für Schäden, die durch die Nutzung des Bots oder durch das Vertrauen auf die bereitgestellten Informationen entstehen, wird vollständig ausgeschlossen.
+          </li>
+          <li><strong>Eigenverantwortung:</strong><br>
+            Sie nutzen den Bot auf eigene Verantwortung und bestätigen, dass Sie:
+            <ul>
+              <li>Die Grenzen des Systems verstehen</li>
+              <li>Alle Antworten kritisch hinterfragen</li>
+              <li>Bei wichtigen Entscheidungen zusätzliche Quellen konsultieren</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn accept" id="acceptUsage">Zustimmen</button>
+        <button class="modal-btn decline" onclick="location.reload()">Ablehnen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hauptinterface -->
+  <div id="mainContainer">
+    <div class="container">
+      <div class="comic">
+        <img src="https://ntc-bot1.netlify.app/Bildschirmfoto%202025-06-26%20um%2021.09.25.png" alt="Linda"/>
+        <div class="comic-name">Linda</div>
+      </div>
+      <div class="chat-area">
+        <header>Linda. Deine persönliche Assistentin im Bereich Personalmanagement.</header>
+        <div class="chat-controls">
+          <button id="btnSessions" class="control-btn" title="Gespeicherte Chats"><i class="fa-solid fa-list"></i></button>
+          <button id="btnNew"      class="control-btn" title="Neuer Chat"><i class="fa-solid fa-plus"></i></button>
+          <button id="btnDel"      class="control-btn" title="Chat löschen"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <div id="chat"></div>
+        <div class="input-bar">
+          <button id="tools-btn" title="Tools">⚙️</button>
+          <input  id="q" type="text" placeholder="Deine Frage…" autocomplete="off"/>
+          <button id="mic-btn" title="Sprich deine Frage ein">🎤</button>
+          <button id="send-btn" title="Senden">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions-Modal -->
+  <div class="modal-overlay" id="sessions-modal" style="display:none" onclick="if(event.target===this)hideSessionsModal()">
+    <div class="modal-card">
+      <div class="modal-head"><i class="fa-solid fa-list"></i>Gespeicherte Chats</div>
+      <div class="modal-content" id="sessions-list"></div>
+      <div class="modal-footer">
+        <button class="modal-btn accept" id="sessions-close">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /************************************************************
+     * Secure-Konfig
+     ************************************************************/
+    // Nutze den Netlify-Proxy (Function config.path = "/api/webhook-proxy")
+    // Falls du keinen friendly path nutzt, setze z.B. "/.netlify/functions/webhook-proxy"
+    const PROXY_ENDPOINT = "/api/webhook-proxy";
+
+    // Elemente
+    const privacyModal   = document.getElementById('privacy-modal');
+    const usageModal     = document.getElementById('usage-modal');
+    const mainContainer  = document.getElementById('mainContainer');
+    const sessionsModal  = document.getElementById('sessions-modal');
+    const sessionsListEl = document.getElementById('sessions-list');
+    const chatEl         = document.getElementById('chat');
+
+    // Storage & Sessions
+    const STORAGE_KEY = 'chat-sessions';
+    let sessions = [], activeId = null;
+
+    const initialMsg = {
+      role:'assistant',
+      content:'Hallo! Wie kann ich Sie im Bereich Personalmanagement, Ausbildung oder Prüfungsvorbereitung unterstützen?'
+    };
+
+    function loadSessions(){
+      try { sessions = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { sessions = []; }
+    }
+    function saveSessions(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+    }
+
+    function createSession(){
+      const id = Date.now().toString();
+      const session = { id, name:'', messages:[initialMsg] };
+      sessions.unshift(session);
+      activeId = id;
+      saveSessions();
+      return session;
+    }
+
+    function loadSession(id){
+      const s = sessions.find(x=>x.id===id);
+      if(!s) return;
+      activeId = id;
+      messages = s.messages.slice();
+      renderMessages();
+      hideSessionsModal();
+    }
+
+    function updateSession(){
+      const s = sessions.find(x=>x.id===activeId);
+      if(!s) return;
+      s.messages = messages.slice();
+      const firstUser = s.messages.find(m=>m.role==='user');
+      s.name = firstUser ? firstUser.content.substring(0,32) : 'Chat';
+      saveSessions();
+    }
+
+    function deleteSession(id){
+      sessions = sessions.filter(x=>x.id!==id);
+      if(activeId===id){
+        if(sessions.length) loadSession(sessions[0].id);
+        else {
+          const s = createSession();
+          messages = s.messages.slice();
+          renderMessages();
+        }
+      }
+      saveSessions();
+      renderSessionList();
+    }
+
+    /************************************************************
+     * XSS-sicheres Rendering (kein marked, kein HTML aus Modell)
+     ************************************************************/
+    function escapeHTML(str){
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    // Nachrichten & UI
+    let messages = [];
+    function renderMessages(){
+      chatEl.innerHTML = '';
+      for(const m of messages){
+        const div = document.createElement('div');
+        div.className = 'message ' + (m.role==='assistant'?'bot':'user');
+        const who = (m.role==='assistant') ? 'Linda' : 'Du';
+        div.innerHTML = `<strong>${who}:</strong><br>${escapeHTML(m.content).replace(/\n/g, "<br>")}`;
+        chatEl.appendChild(div);
+      }
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function renderSessionList(){
+      sessionsListEl.innerHTML = sessions.map(s=>`
+        <div class="session-item" data-id="${s.id}">
+          <span>${escapeHTML(s.name||'Chat')}</span>
+          <button class="del-session" data-id="${s.id}" title="Löschen">🗑️</button>
+        </div>`).join('');
+      document.querySelectorAll('.session-item').forEach(el=>{
+        el.onclick = ()=> loadSession(el.dataset.id);
+      });
+      document.querySelectorAll('.del-session').forEach(btn=>{
+        btn.onclick = e=>{
+          e.stopPropagation();
+          deleteSession(btn.dataset.id);
+        };
+      });
+    }
+
+    // Modals-Steuerung
+    document.getElementById('acceptPrivacy').onclick = ()=>{
+      privacyModal.style.display = 'none';
+      usageModal.style.display   = 'flex';
+    };
+    document.getElementById('acceptUsage').onclick = ()=>{
+      usageModal.style.display    = 'none';
+      mainContainer.style.display = 'flex';
+      loadSessions();
+      if(!sessions.length){
+        const s = createSession();
+        messages = s.messages.slice();
+      } else {
+        activeId = sessions[0].id;
+        messages = sessions[0].messages.slice();
+      }
+      renderMessages();
+    };
+
+    function showSessionsModal(){
+      renderSessionList();
+      sessionsModal.style.display='flex';
+    }
+    function hideSessionsModal(){
+      sessionsModal.style.display='none';
+    }
+    document.getElementById('btnSessions').onclick    = showSessionsModal;
+    document.getElementById('sessions-close').onclick = hideSessionsModal;
+
+    // Neuer Chat
+    document.getElementById('btnNew').onclick = ()=>{
+      if(confirm('Neuen Chat starten?')){
+        const s = createSession();
+        messages = s.messages.slice();
+        renderMessages();
+      }
+    };
+
+    // Chat löschen
+    document.getElementById('btnDel').onclick = ()=>{
+      if(confirm('Diesen Chat wirklich löschen?')){
+        messages = [];
+        // Optional: oder messages = [initialMsg];
+        updateSession();
+        renderMessages();
+      }
+    };
+
+    // SpeechRecognition
+    const SpeechRec = window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(SpeechRec){
+      const rec = new SpeechRec();
+      rec.lang='de-DE'; rec.interimResults=false; rec.maxAlternatives=1;
+      rec.onstart = ()=> document.getElementById('mic-btn').classList.add('recording');
+      rec.onend   = ()=> document.getElementById('mic-btn').classList.remove('recording');
+      rec.onresult= e=> document.getElementById('q').value = e.results[0][0].transcript;
+      document.getElementById('mic-btn').onclick = ()=> rec.start();
+    } else {
+      document.getElementById('mic-btn').disabled = true;
+    }
+
+    /************************************************************
+     * send() – Text -> Proxy -> Text (Secure)
+     * - kein JSON
+     * - keine History
+     ************************************************************/
+    async function send(){
+      const inp = document.getElementById('q');
+      const text = inp.value.trim();
+      if(!text) return;
+
+      messages.push({role:'user',content:text});
+      renderMessages();
+      inp.value='';
+
+      messages.push({role:'assistant',content:'…'});
+      renderMessages();
+      updateSession();
+
+      let reply = 'Technischer Fehler.';
+      try {
+        const res = await fetch(PROXY_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          body: text
+        });
+        reply = await res.text();
+        if(!reply) reply = 'Keine Antwort erhalten.';
+      } catch(err){
+        reply = 'Fehler: ' + (err && err.message ? err.message : String(err));
+      }
+
+      // Placeholder ersetzen
+      for(let i = messages.length - 1; i >= 0; i--){
+        if(messages[i].role === 'assistant' && messages[i].content === '…'){
+          messages[i] = { role:'assistant', content: reply };
+          break;
+        }
+      }
+
+      updateSession();
+      renderMessages();
+    }
+
+    document.getElementById('send-btn').onclick = send;
+    document.getElementById('q').addEventListener('keydown',e=>{
+      if(e.key==='Enter' && !e.shiftKey){
+        e.preventDefault();
+        send();
+      }
+    });
+
+    // Initial
+    privacyModal.style.display='flex';
+  </script>
+</body>
+</html>
