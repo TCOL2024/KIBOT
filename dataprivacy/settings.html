@@ -244,6 +244,100 @@
       color: var(--n26-muted);
     }
 
+
+
+    .support-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .support-card {
+      border: 1px solid var(--n26-border);
+      border-radius: 16px;
+      padding: 18px;
+      background: #fff;
+      display: grid;
+      gap: 12px;
+    }
+
+    .support-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .support-card p {
+      color: var(--n26-muted);
+      font-size: 0.92rem;
+    }
+
+    .dialog-box {
+      border: 1px solid var(--n26-border);
+      border-radius: 14px;
+      background: var(--n26-warning);
+      padding: 12px;
+      max-height: 210px;
+      overflow-y: auto;
+      display: grid;
+      gap: 8px;
+    }
+
+    .bubble {
+      padding: 8px 10px;
+      border-radius: 10px;
+      max-width: 90%;
+      font-size: 0.9rem;
+    }
+
+    .bubble.system {
+      background: #fff;
+      border: 1px solid var(--n26-border);
+      justify-self: start;
+    }
+
+    .bubble.user {
+      background: #d7fbf7;
+      justify-self: end;
+    }
+
+    .mini-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-form label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--n26-ink-strong);
+    }
+
+    .mini-form input,
+    .mini-form select,
+    .mini-form textarea {
+      width: 100%;
+      border: 1px solid var(--n26-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--n26-ink);
+      background: #fff;
+    }
+
+    .mini-form textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .status {
+      font-size: 0.82rem;
+      color: var(--n26-muted);
+    }
+
+    .status.success {
+      color: #0c8f84;
+      font-weight: 600;
+    }
+
     footer {
       padding: 24px 32px;
       text-align: center;
@@ -259,6 +353,10 @@
       .sidebar {
         flex-direction: row;
         flex-wrap: wrap;
+      }
+
+      .support-grid {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -379,6 +477,51 @@
           <button class="btn">Details anzeigen</button>
           <button class="btn primary">Auswahl speichern</button>
         </div>
+
+
+        <div class="support-grid" aria-label="Kontakt und Rückfragen">
+          <article class="support-card">
+            <h3>Dialogmöglichkeit (Live-Chat Vorschau)</h3>
+            <p>Stelle direkte Rückfragen zum Datenschutz. Diese Demo simuliert einen Support-Dialog.</p>
+            <div id="dialogBox" class="dialog-box" aria-live="polite">
+              <div class="bubble system">Hallo! Ich unterstütze dich bei deinen Privacy-Einstellungen. Wobei kann ich helfen?</div>
+            </div>
+            <form id="dialogForm" class="mini-form" novalidate>
+              <label for="dialogInput">Deine Nachricht</label>
+              <input id="dialogInput" name="dialogInput" type="text" placeholder="z. B. Wie widerrufe ich meine Einwilligung?" required />
+              <button class="btn primary" type="submit">Nachricht senden</button>
+              <p id="dialogStatus" class="status">Noch keine neue Nachricht gesendet.</p>
+            </form>
+          </article>
+
+          <article class="support-card">
+            <h3>Anfragemöglichkeit &amp; Rückfragenformular</h3>
+            <p>Übermittle konkrete Datenschutz-Anfragen (Auskunft, Löschung, Berichtigung etc.).</p>
+            <form id="requestForm" class="mini-form" novalidate>
+              <label for="requestType">Art der Anfrage</label>
+              <select id="requestType" name="requestType" required>
+                <option value="">Bitte auswählen</option>
+                <option>Datenauskunft</option>
+                <option>Datenlöschung</option>
+                <option>Datenkorrektur</option>
+                <option>Cookie-Widerspruch</option>
+                <option>Sonstige Rückfrage</option>
+              </select>
+
+              <label for="fullName">Vor- und Nachname</label>
+              <input id="fullName" name="fullName" type="text" autocomplete="name" required />
+
+              <label for="email">E-Mail</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+
+              <label for="question">Details zur Anfrage</label>
+              <textarea id="question" name="question" placeholder="Beschreibe bitte dein Anliegen..."></textarea>
+
+              <button class="btn primary" type="submit">Anfrage absenden</button>
+              <p id="requestStatus" class="status">Bitte alle Pflichtfelder ausfüllen.</p>
+            </form>
+          </article>
+        </div>
       </section>
     </main>
 
@@ -386,5 +529,56 @@
       © 2025 N26 (Mock). Alle Rechte vorbehalten. | Datenschutz | Cookie-Richtlinie
     </footer>
   </div>
+
+  <script>
+    const dialogForm = document.getElementById("dialogForm");
+    const dialogInput = document.getElementById("dialogInput");
+    const dialogBox = document.getElementById("dialogBox");
+    const dialogStatus = document.getElementById("dialogStatus");
+
+    const requestForm = document.getElementById("requestForm");
+    const requestStatus = document.getElementById("requestStatus");
+
+    function appendBubble(text, type) {
+      const el = document.createElement("div");
+      el.className = `bubble ${type}`;
+      el.textContent = text;
+      dialogBox.appendChild(el);
+      dialogBox.scrollTop = dialogBox.scrollHeight;
+    }
+
+    dialogForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const message = dialogInput.value.trim();
+      if (!message) {
+        dialogStatus.textContent = "Bitte gib zuerst eine Nachricht ein.";
+        return;
+      }
+
+      appendBubble(message, "user");
+      dialogInput.value = "";
+      dialogStatus.textContent = "Nachricht gesendet. Demo-Antwort wird angezeigt...";
+      dialogStatus.className = "status success";
+
+      setTimeout(() => {
+        appendBubble("Danke für deine Anfrage. Wir prüfen das und melden uns zeitnah.", "system");
+      }, 450);
+    });
+
+    requestForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!requestForm.checkValidity()) {
+        requestStatus.textContent = "Formular unvollständig: Bitte Pflichtfelder prüfen.";
+        requestStatus.className = "status";
+        requestForm.reportValidity();
+        return;
+      }
+
+      requestStatus.textContent = "Anfrage erfolgreich erfasst. Referenz: N26-REQ-2025-0912";
+      requestStatus.className = "status success";
+      requestForm.reset();
+    });
+  </script>
+
 </body>
 </html>
