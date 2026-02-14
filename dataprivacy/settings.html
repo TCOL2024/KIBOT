@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Datenschutz-Portal – Privacy Preference Center</title>
-  <meta name="description" content="OneTrust-inspiriertes Datenschutz-Portal für Einwilligungen, Auskunfts- und Löschanfragen." />
+  <title>Datenschutz-Anfrageportal</title>
+  <meta name="description" content="Portal für formale Datenschutz-Anfragen nach DSGVO." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -21,199 +21,62 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body { min-height: 100%; }
-
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.45;
+      min-height: 100vh;
     }
 
-    .portal-shell {
-      max-width: 1180px;
+    .shell {
+      max-width: 980px;
       margin: 0 auto;
       padding: 24px 16px 40px;
       display: grid;
-      gap: 18px;
+      gap: 16px;
     }
 
-    .portal-header {
+    .header,
+    .panel {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 16px;
       padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
     }
 
-    .portal-title h1 {
-      font-size: 1.3rem;
-      margin-bottom: 4px;
-    }
+    .header h1 { font-size: 1.35rem; margin-bottom: 8px; }
+    .header p { color: var(--muted); }
 
-    .portal-title p {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .badge {
+    .hint {
+      margin-top: 10px;
       display: inline-block;
       border: 1px solid #bfdcff;
       background: #e8f3ff;
       color: #0958b7;
       border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 600;
       padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 600;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 18px;
-    }
+    .panel h2 { font-size: 1.05rem; margin-bottom: 6px; }
+    .panel .sub { color: var(--muted); font-size: .93rem; margin-bottom: 12px; }
 
-    .sidebar,
-    .main {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-    }
-
-    .sidebar {
-      padding: 14px;
-      height: fit-content;
-      display: grid;
-      gap: 8px;
-    }
-
-    .side-item {
-      border: 1px solid transparent;
-      border-radius: 10px;
-      background: transparent;
-      text-align: left;
-      color: var(--text);
-      font-weight: 500;
-      padding: 10px 12px;
-      cursor: pointer;
-    }
-
-    .side-item.active,
-    .side-item:hover {
-      background: #f3f4f6;
-      border-color: var(--line);
-    }
-
-    .main {
-      padding: 20px;
-      display: grid;
-      gap: 16px;
-    }
-
-    .section-title h2 { font-size: 1.15rem; margin-bottom: 6px; }
-    .section-title p { color: var(--muted); font-size: 0.95rem; }
-
-    .cookie-card {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 14px;
-      display: grid;
-      gap: 8px;
-    }
-
-    .cookie-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .cookie-head h3 { font-size: 1rem; }
-    .cookie-card p { color: var(--muted); font-size: 0.92rem; }
-
-    .switch-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 0.86rem;
-      font-weight: 600;
-    }
-
-    .switch {
-      width: 42px;
-      height: 22px;
-      border-radius: 999px;
-      background: #b8c0c8;
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .switch::after {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #fff;
-      transition: transform .2s ease;
-    }
-
-    .switch.on { background: var(--primary); }
-    .switch.on::after { transform: translateX(20px); }
-
-    .actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 9px 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .btn:hover { border-color: #c3c9cf; }
-
-    .btn-primary {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      border-color: var(--primary-dark);
-    }
-
-    .request-grid {
+    .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
 
-    .panel {
+    .block {
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 14px;
+      background: #fff;
       display: grid;
       gap: 10px;
-      background: #fff;
     }
-
-    .panel h3 { font-size: 1rem; }
-    .panel p { color: var(--muted); font-size: .9rem; }
 
     .chat-box {
       border: 1px solid var(--line);
@@ -237,10 +100,7 @@
     .msg.bot { background: #fff; border: 1px solid var(--line); }
     .msg.user { background: #e8f3ff; justify-self: end; }
 
-    .form {
-      display: grid;
-      gap: 8px;
-    }
+    .form { display: grid; gap: 8px; }
 
     .form label {
       font-size: .84rem;
@@ -260,145 +120,100 @@
       font: inherit;
     }
 
-    .form textarea { min-height: 90px; resize: vertical; }
+    .form textarea { min-height: 100px; resize: vertical; }
+
+    .btn {
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
 
     .status { font-size: .83rem; color: var(--muted); }
     .status.success { color: var(--ok); font-weight: 600; }
     .status.error { color: var(--warn); font-weight: 600; }
 
-    .portal-footer {
+    .footer {
       text-align: center;
       color: var(--muted);
       font-size: .82rem;
-      padding: 4px;
     }
 
-    @media (max-width: 960px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar { display: flex; flex-wrap: wrap; }
-      .request-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .portal-header { flex-direction: column; }
-      .actions .btn { flex: 1 1 100%; }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="portal-shell">
-    <header class="portal-header">
-      <div class="portal-title">
-        <h1>Privacy Preference & Datenschutz-Anfragen</h1>
-        <p>Verwalte Einwilligungen und stelle formale DSGVO-Anfragen über ein zentrales Portal.</p>
-      </div>
-      <span class="badge">OneTrust-inspiriertes Interface</span>
+  <div class="shell">
+    <header class="header">
+      <h1>Datenschutz-Anfrageportal</h1>
+      <p>Diese Seite dient ausschließlich der Einreichung und Vorabklärung von Datenschutz-Anfragen (DSGVO).</p>
+      <span class="hint">Keine Einstellungen · keine Consent-Verwaltung · nur Anfrageprozess</span>
     </header>
 
-    <div class="layout">
-      <nav class="sidebar" aria-label="Portalnavigation">
-        <button class="side-item active" type="button">Übersicht</button>
-        <button class="side-item" type="button">Einwilligungen</button>
-        <button class="side-item" type="button">Datenschutz-Anfragen</button>
-        <button class="side-item" type="button">Verarbeitungszwecke</button>
-        <button class="side-item" type="button">Rechte & Fristen</button>
-      </nav>
+    <section class="panel">
+      <h2>Anfragen einreichen</h2>
+      <p class="sub">Für den Live-Betrieb sendet das Formular per <code>POST</code> an <code>/.netlify/functions/privacy-request</code> (überschreibbar via <code>window.PRIVACY_REQUEST_ENDPOINT</code>).</p>
 
-      <main class="main">
-        <section class="section-title">
-          <h2>Cookie- und Consent-Präferenzen</h2>
-          <p>Setze deine Einwilligungen granular und speichere sie für den laufenden Betrieb.</p>
-        </section>
-
-        <section class="cookie-card" aria-label="Notwendige Cookies">
-          <div class="cookie-head">
-            <h3>Notwendige Cookies</h3>
-            <div class="switch-label"><span>Immer aktiv</span><span class="switch on" aria-hidden="true"></span></div>
+      <div class="grid">
+        <article class="block">
+          <h3>Rückfragen vorab</h3>
+          <p class="sub">Nutze den Dialog für kurze Vorabfragen zur passenden Anfrageart.</p>
+          <div id="chatBox" class="chat-box" aria-live="polite">
+            <div class="msg bot">Hallo! Ich helfe dir, die richtige Datenschutz-Anfrage auszuwählen.</div>
           </div>
-          <p>Erforderlich für Sicherheit, Session und technische Bereitstellung des Portals.</p>
-        </section>
+          <form id="chatForm" class="form" novalidate>
+            <label for="chatInput">Deine Rückfrage</label>
+            <input id="chatInput" name="chatInput" type="text" required placeholder="z. B. Welche Unterlagen muss ich beifügen?" />
+            <button class="btn" type="submit">Nachricht senden</button>
+            <p id="chatStatus" class="status">Noch keine neue Nachricht gesendet.</p>
+          </form>
+        </article>
 
-        <section class="cookie-card" aria-label="Analyse Cookies">
-          <div class="cookie-head">
-            <h3>Analyse & Performance</h3>
-            <div class="switch-label"><span>Aktiv</span><span class="switch on" aria-hidden="true"></span></div>
-          </div>
-          <p>Hilft, die Nutzung anonymisiert auszuwerten und das Portal zu verbessern.</p>
-        </section>
+        <article class="block">
+          <h3>Formale Datenschutz-Anfrage</h3>
+          <p class="sub">Bitte Pflichtfelder ausfüllen, damit die Anfrage rechtskonform bearbeitet werden kann.</p>
+          <form id="privacyForm" class="form" novalidate>
+            <label for="requestType">Anfrageart *</label>
+            <select id="requestType" name="requestType" required>
+              <option value="">Bitte auswählen</option>
+              <option>Datenauskunft (Art. 15 DSGVO)</option>
+              <option>Datenberichtigung (Art. 16 DSGVO)</option>
+              <option>Datenlöschung (Art. 17 DSGVO)</option>
+              <option>Einschränkung Verarbeitung (Art. 18 DSGVO)</option>
+              <option>Datenübertragbarkeit (Art. 20 DSGVO)</option>
+              <option>Widerspruch (Art. 21 DSGVO)</option>
+            </select>
 
-        <section class="cookie-card" aria-label="Komfortfunktionen">
-          <div class="cookie-head">
-            <h3>Komfort- & Dialogfunktionen</h3>
-            <div class="switch-label"><span>Aktiv</span><span class="switch on" aria-hidden="true"></span></div>
-          </div>
-          <p>Aktiviert Rückfragen, Chat-Unterstützung und Formular-Assistenz.</p>
-        </section>
+            <label for="fullName">Vor- und Nachname *</label>
+            <input id="fullName" name="fullName" type="text" autocomplete="name" required />
 
-        <div class="actions">
-          <button type="button" class="btn">Alle optionalen ablehnen</button>
-          <button type="button" class="btn">Details anzeigen</button>
-          <button type="button" class="btn btn-primary">Präferenzen speichern</button>
-        </div>
+            <label for="email">E-Mail *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
 
-        <section class="section-title">
-          <h2>Datenschutz-Anfragen (Live-Betrieb)</h2>
-          <p>Das Formular sendet im Produktivbetrieb per <code>POST</code> an einen konfigurierbaren Endpoint.
-            Standard: <code>/.netlify/functions/privacy-request</code>.</p>
-        </section>
+            <label for="reference">Kundennummer / Referenz (optional)</label>
+            <input id="reference" name="reference" type="text" />
 
-        <div class="request-grid">
-          <article class="panel">
-            <h3>Dialogmöglichkeit</h3>
-            <p>Für Nachfragen vor dem Absenden einer Anfrage.</p>
-            <div id="chatBox" class="chat-box" aria-live="polite">
-              <div class="msg bot">Hallo! Ich helfe dir beim richtigen Anfrage-Typ (Auskunft, Löschung, Berichtigung…).</div>
-            </div>
-            <form id="chatForm" class="form" novalidate>
-              <label for="chatInput">Deine Rückfrage</label>
-              <input id="chatInput" name="chatInput" type="text" required placeholder="z. B. Welche Datenkategorien kann ich anfordern?" />
-              <button class="btn btn-primary" type="submit">Nachricht senden</button>
-              <p id="chatStatus" class="status">Noch keine neue Nachricht gesendet.</p>
-            </form>
-          </article>
+            <label for="details">Beschreibung der Anfrage *</label>
+            <textarea id="details" name="details" required placeholder="Bitte dein Anliegen und den Kontext beschreiben."></textarea>
 
-          <article class="panel">
-            <h3>Formale Datenschutz-Anfrage</h3>
-            <p>Geeignet für den Live-Betrieb inkl. Endpoint-Konfiguration.</p>
-            <form id="privacyForm" class="form" novalidate>
-              <label for="requestType">Anfrageart *</label>
-              <select id="requestType" name="requestType" required>
-                <option value="">Bitte auswählen</option>
-                <option>Datenauskunft (Art. 15 DSGVO)</option>
-                <option>Datenberichtigung (Art. 16 DSGVO)</option>
-                <option>Datenlöschung (Art. 17 DSGVO)</option>
-                <option>Einschränkung Verarbeitung (Art. 18 DSGVO)</option>
-                <option>Datenübertragbarkeit (Art. 20 DSGVO)</option>
-                <option>Widerspruch (Art. 21 DSGVO)</option>
-              </select>
+            <button class="btn" type="submit">Anfrage senden</button>
+            <p id="requestStatus" class="status">Pflichtfelder vollständig ausfüllen.</p>
+          </form>
+        </article>
+      </div>
+    </section>
 
-              <label for="fullName">Vor- und Nachname *</label>
-              <input id="fullName" name="fullName" type="text" autocomplete="name" required />
-
-              <label for="email">E-Mail *</label>
-              <input id="email" name="email" type="email" autocomplete="email" required />
-
-              <label for="reference">Kundennummer / Referenz (optional)</label>
-              <input id="reference" name="reference" type="text" />
-
-              <label for="details">Nachricht *</label>
-              <textarea id="details" name="details" required placeholder="Beschreibe bitte dein Anliegen inkl. Kontext."></textarea>
-
-              <button class="btn btn-primary" type="submit">Anfrage senden</button>
-              <p id="requestStatus" class="status">Pflichtfelder bitte vollständig ausfüllen.</p>
-            </form>
-          </article>
-        </div>
-      </main>
-    </div>
-
-    <footer class="portal-footer">
-      Demo-Portal für Datenschutzprozesse · bereit für statisches Hosting + Netlify Function Endpoint
-    </footer>
+    <footer class="footer">Datenschutz-Anfrageportal · Live-Betrieb über Netlify Function</footer>
   </div>
 
   <script>
@@ -435,7 +250,7 @@
       chatStatus.textContent = 'Nachricht gesendet.';
 
       setTimeout(() => {
-        addMsg('Danke, diese Information kannst du direkt im Formular unten einreichen.', 'bot');
+        addMsg('Danke! Du kannst jetzt die formale Anfrage im rechten Bereich absenden.', 'bot');
       }, 350);
     });
 
@@ -451,7 +266,7 @@
 
       const payload = Object.fromEntries(new FormData(privacyForm).entries());
       payload.createdAt = new Date().toISOString();
-      payload.source = 'privacy-preference-portal';
+      payload.source = 'datenschutz-anfrageportal';
 
       requestStatus.className = 'status';
       requestStatus.textContent = 'Anfrage wird übertragen...';
@@ -468,7 +283,7 @@
         }
 
         requestStatus.className = 'status success';
-        requestStatus.textContent = 'Anfrage erfolgreich eingereicht. Vorgangsnummer wird per E-Mail versendet.';
+        requestStatus.textContent = 'Anfrage erfolgreich eingereicht.';
         privacyForm.reset();
       } catch (error) {
         requestStatus.className = 'status error';
