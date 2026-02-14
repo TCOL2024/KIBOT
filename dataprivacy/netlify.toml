@@ -1,0 +1,24 @@
+diff --git a/netlify.toml b/netlify.toml
+index 59873af6f4bfef082a0a47863eb6d3d44908606d..fb2e9e0e43d5d026716ae4dc68b71bda8944a680 100644
+--- a/netlify.toml
++++ b/netlify.toml
+@@ -1,15 +1,19 @@
+ [build]
+   command = "npm run build"
+   publish = "."
+ 
+ [functions]
+   # falls du Functions nutzt, lass hier nur das Verzeichnis stehen
+   directory = "netlify/functions"
+ 
+ [functions."webhook-proxy"]
+   # Erhöht das Timeout auf das Netlify-Maximum, damit
+   # längere Make-Szenarien nicht abbrechen
+   timeout = 26
+ 
++
++[functions."privacy-request"]
++  timeout = 26
++
+ [build.environment]
+   NODE_VERSION = "18"
