@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>N26 Privacy Preference Center (Mock)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --n26-green: #10c4b5;
+      --n26-green-dark: #0bb3a6;
+      --n26-ink: #0b1f2a;
+      --n26-ink-strong: #07141c;
+      --n26-muted: #6b7785;
+      --n26-border: #e1e6eb;
+      --n26-bg: #f6f8f9;
+      --n26-card: #ffffff;
+      --n26-warning: #f3f5f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--n26-bg);
+      color: var(--n26-ink);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .portal {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--n26-ink-strong);
+      color: #fff;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--n26-green);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--n26-ink-strong);
+    }
+
+    .brand h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .language {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+
+    .language select {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 8px;
+      padding: 6px 12px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      padding: 32px;
+      flex: 1;
+    }
+
+    .sidebar {
+      background: var(--n26-card);
+      border-radius: 18px;
+      padding: 20px;
+      border: 1px solid var(--n26-border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: fit-content;
+    }
+
+    .sidebar button {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight: 500;
+      color: var(--n26-ink);
+      cursor: pointer;
+    }
+
+    .sidebar button.active {
+      background: var(--n26-warning);
+      color: var(--n26-ink-strong);
+    }
+
+    .content {
+      background: var(--n26-card);
+      border-radius: 24px;
+      padding: 28px;
+      border: 1px solid var(--n26-border);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .content-header h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .content-header p {
+      color: var(--n26-muted);
+      margin-top: 8px;
+    }
+
+    .cookie-card {
+      border: 1px solid var(--n26-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .cookie-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .cookie-card-header h3 {
+      font-size: 1.1rem;
+    }
+
+    .cookie-card p {
+      color: var(--n26-muted);
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--n26-ink-strong);
+    }
+
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      border-radius: 999px;
+      background: #cfd6dd;
+      transition: background 0.2s ease;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s ease;
+    }
+
+    .switch[data-state="on"] {
+      background: var(--n26-green);
+    }
+
+    .switch[data-state="on"]::after {
+      transform: translateX(20px);
+    }
+
+    .switch[data-state="locked"] {
+      background: #93a0ad;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 10px 18px;
+      border: 1px solid var(--n26-ink-strong);
+      background: transparent;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--n26-green);
+      border-color: var(--n26-green);
+      color: var(--n26-ink-strong);
+    }
+
+    .btn.primary:hover {
+      background: var(--n26-green-dark);
+      border-color: var(--n26-green-dark);
+    }
+
+    .details {
+      background: var(--n26-warning);
+      border-radius: 16px;
+      padding: 16px;
+      display: grid;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--n26-muted);
+    }
+
+    footer {
+      padding: 24px 32px;
+      text-align: center;
+      color: var(--n26-muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .cookie-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .actions {
+        justify-content: stretch;
+      }
+
+      .actions .btn {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="portal">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">N26</div>
+        <div>
+          <h1>Privacy Preference Center</h1>
+          <p>Verwalte deine Cookie- und Datenschutz-Einstellungen.</p>
+        </div>
+      </div>
+      <div class="language">
+        <span>Sprache</span>
+        <select aria-label="Sprache auswählen">
+          <option selected>Deutsch</option>
+          <option>English</option>
+          <option>Español</option>
+        </select>
+      </div>
+    </header>
+
+    <main>
+      <aside class="sidebar" aria-label="Portalnavigation">
+        <button class="active">Übersicht</button>
+        <button>Performance Cookies</button>
+        <button>Funktionale Cookies</button>
+        <button>Targeting Cookies</button>
+        <button>Partner &amp; Anbieter</button>
+        <button>Datenschutzrechte</button>
+      </aside>
+
+      <section class="content">
+        <div class="content-header">
+          <h2>Deine Präferenzen</h2>
+          <p>Nutze die Schalter, um zu steuern, wie wir deine Daten für personalisierte Erlebnisse nutzen.</p>
+        </div>
+
+        <div class="cookie-card">
+          <div class="cookie-card-header">
+            <h3>Unbedingt erforderliche Cookies</h3>
+            <div class="toggle">
+              <span>Immer aktiv</span>
+              <div class="switch" data-state="locked" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p>Diese Cookies sind notwendig, damit die Website funktioniert und können nicht deaktiviert werden.</p>
+        </div>
+
+        <div class="cookie-card">
+          <div class="cookie-card-header">
+            <h3>Performance &amp; Analyse</h3>
+            <div class="toggle">
+              <span>Aktiv</span>
+              <div class="switch" data-state="on" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p>Hilft uns zu verstehen, wie Besucher*innen die App nutzen, um das Erlebnis zu verbessern.</p>
+        </div>
+
+        <div class="cookie-card">
+          <div class="cookie-card-header">
+            <h3>Funktionale Cookies</h3>
+            <div class="toggle">
+              <span>Aktiv</span>
+              <div class="switch" data-state="on" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p>Ermöglicht zusätzliche Features wie Live-Chat, bevorzugte Spracheinstellungen und Videos.</p>
+        </div>
+
+        <div class="cookie-card">
+          <div class="cookie-card-header">
+            <h3>Targeting &amp; Marketing</h3>
+            <div class="toggle">
+              <span>Inaktiv</span>
+              <div class="switch" data-state="off" aria-hidden="true"></div>
+            </div>
+          </div>
+          <p>Wird verwendet, um relevante Inhalte und Angebote auf dich zuzuschneiden.</p>
+        </div>
+
+        <div class="details">
+          <strong>Weitere Informationen</strong>
+          <span>Letzte Aktualisierung: 12. September 2025</span>
+          <span>Cookie-ID: 8FJ2X-39A1-PLT</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn">Alle ablehnen</button>
+          <button class="btn">Details anzeigen</button>
+          <button class="btn primary">Auswahl speichern</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      © 2025 N26 (Mock). Alle Rechte vorbehalten. | Datenschutz | Cookie-Richtlinie
+    </footer>
+  </div>
+</body>
+</html>
