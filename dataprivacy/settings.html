@@ -2,583 +2,479 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>N26 Privacy Preference Center (Mock)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Datenschutz-Portal – Privacy Preference Center</title>
+  <meta name="description" content="OneTrust-inspiriertes Datenschutz-Portal für Einwilligungen, Auskunfts- und Löschanfragen." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --n26-green: #10c4b5;
-      --n26-green-dark: #0bb3a6;
-      --n26-ink: #0b1f2a;
-      --n26-ink-strong: #07141c;
-      --n26-muted: #6b7785;
-      --n26-border: #e1e6eb;
-      --n26-bg: #f6f8f9;
-      --n26-card: #ffffff;
-      --n26-warning: #f3f5f7;
+      --bg: #f7f7f8;
+      --card: #ffffff;
+      --line: #e1e4e8;
+      --text: #24292e;
+      --muted: #57606a;
+      --primary: #0969da;
+      --primary-dark: #0550ae;
+      --ok: #1a7f37;
+      --warn: #d1242f;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { min-height: 100%; }
 
     body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-      background: var(--n26-bg);
-      color: var(--n26-ink);
-      line-height: 1.5;
-      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
     }
 
-    .portal {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header {
-      background: var(--n26-ink-strong);
-      color: #fff;
-      padding: 24px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand-mark {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: var(--n26-green);
+    .portal-shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
       display: grid;
-      place-items: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--n26-ink-strong);
+      gap: 18px;
     }
 
-    .brand h1 {
-      font-size: 1.2rem;
+    .portal-header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .portal-title h1 {
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+
+    .portal-title p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid #bfdcff;
+      background: #e8f3ff;
+      color: #0958b7;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.82rem;
       font-weight: 600;
     }
 
-    .language {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.9rem;
-    }
-
-    .language select {
-      background: transparent;
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 8px;
-      padding: 6px 12px;
-    }
-
-    main {
+    .layout {
       display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 24px;
-      padding: 32px;
-      flex: 1;
+      grid-template-columns: 250px 1fr;
+      gap: 18px;
+    }
+
+    .sidebar,
+    .main {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
     }
 
     .sidebar {
-      background: var(--n26-card);
-      border-radius: 18px;
-      padding: 20px;
-      border: 1px solid var(--n26-border);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      padding: 14px;
       height: fit-content;
+      display: grid;
+      gap: 8px;
     }
 
-    .sidebar button {
-      background: none;
-      border: none;
+    .side-item {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
       text-align: left;
-      padding: 12px 14px;
-      border-radius: 12px;
+      color: var(--text);
       font-weight: 500;
-      color: var(--n26-ink);
+      padding: 10px 12px;
       cursor: pointer;
     }
 
-    .sidebar button.active {
-      background: var(--n26-warning);
-      color: var(--n26-ink-strong);
+    .side-item.active,
+    .side-item:hover {
+      background: #f3f4f6;
+      border-color: var(--line);
     }
 
-    .content {
-      background: var(--n26-card);
-      border-radius: 24px;
-      padding: 28px;
-      border: 1px solid var(--n26-border);
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .content-header h2 {
-      font-size: 1.6rem;
-      font-weight: 700;
-    }
-
-    .content-header p {
-      color: var(--n26-muted);
-      margin-top: 8px;
-    }
-
-    .cookie-card {
-      border: 1px solid var(--n26-border);
-      border-radius: 16px;
+    .main {
       padding: 20px;
       display: grid;
-      gap: 12px;
-    }
-
-    .cookie-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       gap: 16px;
     }
 
-    .cookie-card-header h3 {
-      font-size: 1.1rem;
+    .section-title h2 { font-size: 1.15rem; margin-bottom: 6px; }
+    .section-title p { color: var(--muted); font-size: 0.95rem; }
+
+    .cookie-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      display: grid;
+      gap: 8px;
     }
 
-    .cookie-card p {
-      color: var(--n26-muted);
+    .cookie-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
     }
 
-    .toggle {
+    .cookie-head h3 { font-size: 1rem; }
+    .cookie-card p { color: var(--muted); font-size: 0.92rem; }
+
+    .switch-label {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.9rem;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.86rem;
       font-weight: 600;
-      color: var(--n26-ink-strong);
     }
 
     .switch {
-      position: relative;
-      width: 44px;
-      height: 24px;
+      width: 42px;
+      height: 22px;
       border-radius: 999px;
-      background: #cfd6dd;
-      transition: background 0.2s ease;
+      background: #b8c0c8;
+      position: relative;
+      flex-shrink: 0;
     }
 
     .switch::after {
       content: "";
       position: absolute;
+      top: 2px;
+      left: 2px;
       width: 18px;
       height: 18px;
       border-radius: 50%;
       background: #fff;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.2s ease;
+      transition: transform .2s ease;
     }
 
-    .switch[data-state="on"] {
-      background: var(--n26-green);
-    }
-
-    .switch[data-state="on"]::after {
-      transform: translateX(20px);
-    }
-
-    .switch[data-state="locked"] {
-      background: #93a0ad;
-    }
+    .switch.on { background: var(--primary); }
+    .switch.on::after { transform: translateX(20px); }
 
     .actions {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
       justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
       border-radius: 999px;
-      padding: 10px 18px;
-      border: 1px solid var(--n26-ink-strong);
-      background: transparent;
+      padding: 9px 16px;
       font-weight: 600;
       cursor: pointer;
     }
 
-    .btn.primary {
-      background: var(--n26-green);
-      border-color: var(--n26-green);
-      color: var(--n26-ink-strong);
+    .btn:hover { border-color: #c3c9cf; }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
     }
 
-    .btn.primary:hover {
-      background: var(--n26-green-dark);
-      border-color: var(--n26-green-dark);
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
     }
 
-    .details {
-      background: var(--n26-warning);
-      border-radius: 16px;
-      padding: 16px;
-      display: grid;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: var(--n26-muted);
-    }
-
-
-
-    .support-grid {
+    .request-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 14px;
     }
 
-    .support-card {
-      border: 1px solid var(--n26-border);
-      border-radius: 16px;
-      padding: 18px;
-      background: #fff;
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
       display: grid;
-      gap: 12px;
+      gap: 10px;
+      background: #fff;
     }
 
-    .support-card h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-    }
+    .panel h3 { font-size: 1rem; }
+    .panel p { color: var(--muted); font-size: .9rem; }
 
-    .support-card p {
-      color: var(--n26-muted);
-      font-size: 0.92rem;
-    }
-
-    .dialog-box {
-      border: 1px solid var(--n26-border);
-      border-radius: 14px;
-      background: var(--n26-warning);
-      padding: 12px;
-      max-height: 210px;
+    .chat-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f7f7f8;
+      min-height: 160px;
+      max-height: 220px;
       overflow-y: auto;
+      padding: 10px;
       display: grid;
       gap: 8px;
     }
 
-    .bubble {
+    .msg {
+      border-radius: 10px;
       padding: 8px 10px;
-      border-radius: 10px;
+      font-size: .9rem;
       max-width: 90%;
-      font-size: 0.9rem;
     }
 
-    .bubble.system {
-      background: #fff;
-      border: 1px solid var(--n26-border);
-      justify-self: start;
-    }
+    .msg.bot { background: #fff; border: 1px solid var(--line); }
+    .msg.user { background: #e8f3ff; justify-self: end; }
 
-    .bubble.user {
-      background: #d7fbf7;
-      justify-self: end;
-    }
-
-    .mini-form {
+    .form {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .mini-form label {
-      font-size: 0.85rem;
+    .form label {
+      font-size: .84rem;
       font-weight: 600;
-      color: var(--n26-ink-strong);
+      color: var(--text);
     }
 
-    .mini-form input,
-    .mini-form select,
-    .mini-form textarea {
+    .form input,
+    .form select,
+    .form textarea {
       width: 100%;
-      border: 1px solid var(--n26-border);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font: inherit;
-      color: var(--n26-ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
       background: #fff;
+      color: var(--text);
+      font: inherit;
     }
 
-    .mini-form textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
+    .form textarea { min-height: 90px; resize: vertical; }
 
-    .status {
-      font-size: 0.82rem;
-      color: var(--n26-muted);
-    }
+    .status { font-size: .83rem; color: var(--muted); }
+    .status.success { color: var(--ok); font-weight: 600; }
+    .status.error { color: var(--warn); font-weight: 600; }
 
-    .status.success {
-      color: #0c8f84;
-      font-weight: 600;
-    }
-
-    footer {
-      padding: 24px 32px;
+    .portal-footer {
       text-align: center;
-      color: var(--n26-muted);
-      font-size: 0.85rem;
+      color: var(--muted);
+      font-size: .82rem;
+      padding: 4px;
     }
 
     @media (max-width: 960px) {
-      main {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-
-      .support-grid {
-        grid-template-columns: 1fr;
-      }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { display: flex; flex-wrap: wrap; }
+      .request-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
-      }
-
-      .content {
-        padding: 20px;
-      }
-
-      .cookie-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .actions {
-        justify-content: stretch;
-      }
-
-      .actions .btn {
-        flex: 1 1 100%;
-      }
+      .portal-header { flex-direction: column; }
+      .actions .btn { flex: 1 1 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="portal">
-    <header>
-      <div class="brand">
-        <div class="brand-mark">N26</div>
-        <div>
-          <h1>Privacy Preference Center</h1>
-          <p>Verwalte deine Cookie- und Datenschutz-Einstellungen.</p>
-        </div>
+  <div class="portal-shell">
+    <header class="portal-header">
+      <div class="portal-title">
+        <h1>Privacy Preference & Datenschutz-Anfragen</h1>
+        <p>Verwalte Einwilligungen und stelle formale DSGVO-Anfragen über ein zentrales Portal.</p>
       </div>
-      <div class="language">
-        <span>Sprache</span>
-        <select aria-label="Sprache auswählen">
-          <option selected>Deutsch</option>
-          <option>English</option>
-          <option>Español</option>
-        </select>
-      </div>
+      <span class="badge">OneTrust-inspiriertes Interface</span>
     </header>
 
-    <main>
-      <aside class="sidebar" aria-label="Portalnavigation">
-        <button class="active">Übersicht</button>
-        <button>Performance Cookies</button>
-        <button>Funktionale Cookies</button>
-        <button>Targeting Cookies</button>
-        <button>Partner &amp; Anbieter</button>
-        <button>Datenschutzrechte</button>
-      </aside>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Portalnavigation">
+        <button class="side-item active" type="button">Übersicht</button>
+        <button class="side-item" type="button">Einwilligungen</button>
+        <button class="side-item" type="button">Datenschutz-Anfragen</button>
+        <button class="side-item" type="button">Verarbeitungszwecke</button>
+        <button class="side-item" type="button">Rechte & Fristen</button>
+      </nav>
 
-      <section class="content">
-        <div class="content-header">
-          <h2>Deine Präferenzen</h2>
-          <p>Nutze die Schalter, um zu steuern, wie wir deine Daten für personalisierte Erlebnisse nutzen.</p>
-        </div>
+      <main class="main">
+        <section class="section-title">
+          <h2>Cookie- und Consent-Präferenzen</h2>
+          <p>Setze deine Einwilligungen granular und speichere sie für den laufenden Betrieb.</p>
+        </section>
 
-        <div class="cookie-card">
-          <div class="cookie-card-header">
-            <h3>Unbedingt erforderliche Cookies</h3>
-            <div class="toggle">
-              <span>Immer aktiv</span>
-              <div class="switch" data-state="locked" aria-hidden="true"></div>
-            </div>
+        <section class="cookie-card" aria-label="Notwendige Cookies">
+          <div class="cookie-head">
+            <h3>Notwendige Cookies</h3>
+            <div class="switch-label"><span>Immer aktiv</span><span class="switch on" aria-hidden="true"></span></div>
           </div>
-          <p>Diese Cookies sind notwendig, damit die Website funktioniert und können nicht deaktiviert werden.</p>
-        </div>
+          <p>Erforderlich für Sicherheit, Session und technische Bereitstellung des Portals.</p>
+        </section>
 
-        <div class="cookie-card">
-          <div class="cookie-card-header">
-            <h3>Performance &amp; Analyse</h3>
-            <div class="toggle">
-              <span>Aktiv</span>
-              <div class="switch" data-state="on" aria-hidden="true"></div>
-            </div>
+        <section class="cookie-card" aria-label="Analyse Cookies">
+          <div class="cookie-head">
+            <h3>Analyse & Performance</h3>
+            <div class="switch-label"><span>Aktiv</span><span class="switch on" aria-hidden="true"></span></div>
           </div>
-          <p>Hilft uns zu verstehen, wie Besucher*innen die App nutzen, um das Erlebnis zu verbessern.</p>
-        </div>
+          <p>Hilft, die Nutzung anonymisiert auszuwerten und das Portal zu verbessern.</p>
+        </section>
 
-        <div class="cookie-card">
-          <div class="cookie-card-header">
-            <h3>Funktionale Cookies</h3>
-            <div class="toggle">
-              <span>Aktiv</span>
-              <div class="switch" data-state="on" aria-hidden="true"></div>
-            </div>
+        <section class="cookie-card" aria-label="Komfortfunktionen">
+          <div class="cookie-head">
+            <h3>Komfort- & Dialogfunktionen</h3>
+            <div class="switch-label"><span>Aktiv</span><span class="switch on" aria-hidden="true"></span></div>
           </div>
-          <p>Ermöglicht zusätzliche Features wie Live-Chat, bevorzugte Spracheinstellungen und Videos.</p>
-        </div>
-
-        <div class="cookie-card">
-          <div class="cookie-card-header">
-            <h3>Targeting &amp; Marketing</h3>
-            <div class="toggle">
-              <span>Inaktiv</span>
-              <div class="switch" data-state="off" aria-hidden="true"></div>
-            </div>
-          </div>
-          <p>Wird verwendet, um relevante Inhalte und Angebote auf dich zuzuschneiden.</p>
-        </div>
-
-        <div class="details">
-          <strong>Weitere Informationen</strong>
-          <span>Letzte Aktualisierung: 12. September 2025</span>
-          <span>Cookie-ID: 8FJ2X-39A1-PLT</span>
-        </div>
+          <p>Aktiviert Rückfragen, Chat-Unterstützung und Formular-Assistenz.</p>
+        </section>
 
         <div class="actions">
-          <button class="btn">Alle ablehnen</button>
-          <button class="btn">Details anzeigen</button>
-          <button class="btn primary">Auswahl speichern</button>
+          <button type="button" class="btn">Alle optionalen ablehnen</button>
+          <button type="button" class="btn">Details anzeigen</button>
+          <button type="button" class="btn btn-primary">Präferenzen speichern</button>
         </div>
 
+        <section class="section-title">
+          <h2>Datenschutz-Anfragen (Live-Betrieb)</h2>
+          <p>Das Formular sendet im Produktivbetrieb per <code>POST</code> an einen konfigurierbaren Endpoint.
+            Standard: <code>/.netlify/functions/privacy-request</code>.</p>
+        </section>
 
-        <div class="support-grid" aria-label="Kontakt und Rückfragen">
-          <article class="support-card">
-            <h3>Dialogmöglichkeit (Live-Chat Vorschau)</h3>
-            <p>Stelle direkte Rückfragen zum Datenschutz. Diese Demo simuliert einen Support-Dialog.</p>
-            <div id="dialogBox" class="dialog-box" aria-live="polite">
-              <div class="bubble system">Hallo! Ich unterstütze dich bei deinen Privacy-Einstellungen. Wobei kann ich helfen?</div>
+        <div class="request-grid">
+          <article class="panel">
+            <h3>Dialogmöglichkeit</h3>
+            <p>Für Nachfragen vor dem Absenden einer Anfrage.</p>
+            <div id="chatBox" class="chat-box" aria-live="polite">
+              <div class="msg bot">Hallo! Ich helfe dir beim richtigen Anfrage-Typ (Auskunft, Löschung, Berichtigung…).</div>
             </div>
-            <form id="dialogForm" class="mini-form" novalidate>
-              <label for="dialogInput">Deine Nachricht</label>
-              <input id="dialogInput" name="dialogInput" type="text" placeholder="z. B. Wie widerrufe ich meine Einwilligung?" required />
-              <button class="btn primary" type="submit">Nachricht senden</button>
-              <p id="dialogStatus" class="status">Noch keine neue Nachricht gesendet.</p>
+            <form id="chatForm" class="form" novalidate>
+              <label for="chatInput">Deine Rückfrage</label>
+              <input id="chatInput" name="chatInput" type="text" required placeholder="z. B. Welche Datenkategorien kann ich anfordern?" />
+              <button class="btn btn-primary" type="submit">Nachricht senden</button>
+              <p id="chatStatus" class="status">Noch keine neue Nachricht gesendet.</p>
             </form>
           </article>
 
-          <article class="support-card">
-            <h3>Anfragemöglichkeit &amp; Rückfragenformular</h3>
-            <p>Übermittle konkrete Datenschutz-Anfragen (Auskunft, Löschung, Berichtigung etc.).</p>
-            <form id="requestForm" class="mini-form" novalidate>
-              <label for="requestType">Art der Anfrage</label>
+          <article class="panel">
+            <h3>Formale Datenschutz-Anfrage</h3>
+            <p>Geeignet für den Live-Betrieb inkl. Endpoint-Konfiguration.</p>
+            <form id="privacyForm" class="form" novalidate>
+              <label for="requestType">Anfrageart *</label>
               <select id="requestType" name="requestType" required>
                 <option value="">Bitte auswählen</option>
-                <option>Datenauskunft</option>
-                <option>Datenlöschung</option>
-                <option>Datenkorrektur</option>
-                <option>Cookie-Widerspruch</option>
-                <option>Sonstige Rückfrage</option>
+                <option>Datenauskunft (Art. 15 DSGVO)</option>
+                <option>Datenberichtigung (Art. 16 DSGVO)</option>
+                <option>Datenlöschung (Art. 17 DSGVO)</option>
+                <option>Einschränkung Verarbeitung (Art. 18 DSGVO)</option>
+                <option>Datenübertragbarkeit (Art. 20 DSGVO)</option>
+                <option>Widerspruch (Art. 21 DSGVO)</option>
               </select>
 
-              <label for="fullName">Vor- und Nachname</label>
+              <label for="fullName">Vor- und Nachname *</label>
               <input id="fullName" name="fullName" type="text" autocomplete="name" required />
 
-              <label for="email">E-Mail</label>
+              <label for="email">E-Mail *</label>
               <input id="email" name="email" type="email" autocomplete="email" required />
 
-              <label for="question">Details zur Anfrage</label>
-              <textarea id="question" name="question" placeholder="Beschreibe bitte dein Anliegen..."></textarea>
+              <label for="reference">Kundennummer / Referenz (optional)</label>
+              <input id="reference" name="reference" type="text" />
 
-              <button class="btn primary" type="submit">Anfrage absenden</button>
-              <p id="requestStatus" class="status">Bitte alle Pflichtfelder ausfüllen.</p>
+              <label for="details">Nachricht *</label>
+              <textarea id="details" name="details" required placeholder="Beschreibe bitte dein Anliegen inkl. Kontext."></textarea>
+
+              <button class="btn btn-primary" type="submit">Anfrage senden</button>
+              <p id="requestStatus" class="status">Pflichtfelder bitte vollständig ausfüllen.</p>
             </form>
           </article>
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
 
-    <footer>
-      © 2025 N26 (Mock). Alle Rechte vorbehalten. | Datenschutz | Cookie-Richtlinie
+    <footer class="portal-footer">
+      Demo-Portal für Datenschutzprozesse · bereit für statisches Hosting + Netlify Function Endpoint
     </footer>
   </div>
 
   <script>
-    const dialogForm = document.getElementById("dialogForm");
-    const dialogInput = document.getElementById("dialogInput");
-    const dialogBox = document.getElementById("dialogBox");
-    const dialogStatus = document.getElementById("dialogStatus");
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const chatBox = document.getElementById('chatBox');
+    const chatStatus = document.getElementById('chatStatus');
 
-    const requestForm = document.getElementById("requestForm");
-    const requestStatus = document.getElementById("requestStatus");
+    const privacyForm = document.getElementById('privacyForm');
+    const requestStatus = document.getElementById('requestStatus');
+    const endpoint = window.PRIVACY_REQUEST_ENDPOINT || '/.netlify/functions/privacy-request';
 
-    function appendBubble(text, type) {
-      const el = document.createElement("div");
-      el.className = `bubble ${type}`;
-      el.textContent = text;
-      dialogBox.appendChild(el);
-      dialogBox.scrollTop = dialogBox.scrollHeight;
+    function addMsg(text, type) {
+      const node = document.createElement('div');
+      node.className = `msg ${type}`;
+      node.textContent = text;
+      chatBox.appendChild(node);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    dialogForm?.addEventListener("submit", (event) => {
+    chatForm.addEventListener('submit', (event) => {
       event.preventDefault();
-      const message = dialogInput.value.trim();
-      if (!message) {
-        dialogStatus.textContent = "Bitte gib zuerst eine Nachricht ein.";
+      const text = chatInput.value.trim();
+
+      if (!text) {
+        chatStatus.className = 'status error';
+        chatStatus.textContent = 'Bitte gib eine Rückfrage ein.';
         return;
       }
 
-      appendBubble(message, "user");
-      dialogInput.value = "";
-      dialogStatus.textContent = "Nachricht gesendet. Demo-Antwort wird angezeigt...";
-      dialogStatus.className = "status success";
+      addMsg(text, 'user');
+      chatInput.value = '';
+      chatStatus.className = 'status success';
+      chatStatus.textContent = 'Nachricht gesendet.';
 
       setTimeout(() => {
-        appendBubble("Danke für deine Anfrage. Wir prüfen das und melden uns zeitnah.", "system");
-      }, 450);
+        addMsg('Danke, diese Information kannst du direkt im Formular unten einreichen.', 'bot');
+      }, 350);
     });
 
-    requestForm?.addEventListener("submit", (event) => {
+    privacyForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      if (!requestForm.checkValidity()) {
-        requestStatus.textContent = "Formular unvollständig: Bitte Pflichtfelder prüfen.";
-        requestStatus.className = "status";
-        requestForm.reportValidity();
+
+      if (!privacyForm.checkValidity()) {
+        requestStatus.className = 'status error';
+        requestStatus.textContent = 'Formular unvollständig – bitte Pflichtfelder prüfen.';
+        privacyForm.reportValidity();
         return;
       }
 
-      requestStatus.textContent = "Anfrage erfolgreich erfasst. Referenz: N26-REQ-2025-0912";
-      requestStatus.className = "status success";
-      requestForm.reset();
+      const payload = Object.fromEntries(new FormData(privacyForm).entries());
+      payload.createdAt = new Date().toISOString();
+      payload.source = 'privacy-preference-portal';
+
+      requestStatus.className = 'status';
+      requestStatus.textContent = 'Anfrage wird übertragen...';
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        requestStatus.className = 'status success';
+        requestStatus.textContent = 'Anfrage erfolgreich eingereicht. Vorgangsnummer wird per E-Mail versendet.';
+        privacyForm.reset();
+      } catch (error) {
+        requestStatus.className = 'status error';
+        requestStatus.textContent = `Übertragung fehlgeschlagen (${error.message}). Bitte später erneut versuchen.`;
+      }
     });
   </script>
-
 </body>
 </html>
