@@ -1,5 +1,5 @@
 diff --git a/README.md b/README.md
-index eaa36eb95e75044a28f3aa2595d367577218dddc..9e30481f0ebe982678e18bcb95fb7323cc7b81d6 100644
+index eaa36eb95e75044a28f3aa2595d367577218dddc..3cbe513909f79d77916c24935d88a12de5e6bee2 100644
 --- a/README.md
 +++ b/README.md
 @@ -1,17 +1,27 @@
@@ -24,7 +24,7 @@ index eaa36eb95e75044a28f3aa2595d367577218dddc..9e30481f0ebe982678e18bcb95fb7323
 +
 +## Datenschutz-Portal (OneTrust-inspiriert)
 +
-+Die Datei `n26-onetrust-portal.html` enthält ein Datenschutz-Portal mit Anfrageformular.
++Die Datei `n26-onetrust-portal.html` enthält ein reines Datenschutz-Anfrageportal (ohne Consent-Settings).
 +Für den Live-Betrieb auf Netlify nutzt die Seite standardmäßig den Endpoint:
 +
 +- `/.netlify/functions/privacy-request`
